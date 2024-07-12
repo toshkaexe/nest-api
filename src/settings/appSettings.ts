@@ -14,13 +14,13 @@ export const AppSettings = {
   AUTH_LOGIN: 'admin',
   AUTH_PASSWORD: 'qwerty',
   MONGO_URI: process.env.MONGO_URI_CLOUD,
-  MONGO_LOCAL_URI: 'mongo://localhost:27017',
-  DB_NAME: 'nest_base',
+  MONGO_LOCAL_URI: process.env.MONGO_URI_LOCAL,
+  DB_NAME_NEST: 'nest_base',
+  DB_NAME: process.env.DB_NAME,
   SEND_MAIL_SERVICE_EMAIL: 'antonanton2025@internet.ru',
-  EMAIL_PWS: 'DMscNJUkP2nJ6f6UZp9b',
-  MONGO_URI_CLOUD:
-    'mongodb+srv://antonzeltser:admin@cluster0.rmbeaqk.mongodb.net/',
-  MONGO_URI_LOCAL: 'mongo://localhost:27017',
+  EMAIL_PWS: process.env.EMAIL_PWS,
+  MONGO_URI_CLOUD: process.env.MONGO_URI_CLOUD,
+  MONGO_URI_LOCAL: process.env.MONGO_URI_CLOUD,
 };
 
 const APP_PREFIX = '/app';
