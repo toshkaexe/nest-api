@@ -8,6 +8,9 @@ import { UsersRepository } from './features/users/users.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
 import process from 'process';
+import { Item, ItemSchema } from './item/item';
+import { ItemService } from './item/itemService';
+import { ItemController } from './item/ItemController';
 
 const userProvider = [UsersRepository, UserService];
 
@@ -16,11 +19,12 @@ const userProvider = [UsersRepository, UserService];
     ConfigModule.forRoot(),
 
     MongooseModule.forRoot(
-      `${process.env.MONGO_URI_CLOUD}${process.env.DB_NAME}`,
+      `${process.env.MONGO_URI_CLOUD}/${process.env.DB_NANE_NEST}`,
     ),
+    MongooseModule.forFeature([{ name: Item.name, schema: ItemSchema }]),
   ],
-  providers: [AppService, ...userProvider],
-  controllers: [UserController, AppController],
+  providers: [AppService, ...userProvider, ItemService],
+  controllers: [UserController, AppController, ItemController],
 })
 export class AppModule {}
 
