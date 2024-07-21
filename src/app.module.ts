@@ -1,33 +1,35 @@
-import { Module } from '@nestjs/common';
+import {Module, Provider} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
 import { AppService } from './app.service';
-import { UserController } from './features/users/user.controller';
-import { UserService } from './features/users/user.service';
-import { UsersRepository } from './features/users/users.repository';
+import { UsersController } from './features/users/api/users.controller';
+
+import { UsersRepository } from './features/users/infrastucture/users.repository';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AppController } from './app.controller';
-import process from 'process';
 import { Item, ItemSchema } from './item/item';
 import { ItemService } from './item/itemService';
 import { ItemController } from './item/ItemController';
+import { AppSettings } from './settings/appSettings';
+import { UsersService } from './features/users/application/user.service';
+import {UsersQueryRepository} from "./features/users/infrastucture/users.query-repository";
+import {User, UserSchema} from "./features/users/domain/user.entity";
+import {AuthService} from "./features/auth/auth.service";
 
-const userProvider = [UsersRepository, UserService];
-
+const usersProviders: Provider[] = [
+  UsersRepository,
+  UsersService,
+  UsersQueryRepository,
+];
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-
     MongooseModule.forRoot(
-      `${process.env.MONGO_URI_CLOUD}/${process.env.DB_NANE_NEST}`,
+      `${AppSettings.MONGO_URI_CLOUD}/${AppSettings.DB_NANE_NEST}`,
     ),
-    MongooseModule.forFeature([{ name: Item.name, schema: ItemSchema }]),
+    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],
-  providers: [AppService, ...userProvider, ItemService],
-  controllers: [UserController, AppController, ItemController],
+  providers: [AppService, ...usersProviders, AuthService,
+  ],
+  controllers: [UsersController],
 })
 export class AppModule {}
-
-//  MongooseModule.forRoot(
-//`${process.env.MONGO_URI_CLOUD!}${process.env.DB_NAME}`,
-// ),
