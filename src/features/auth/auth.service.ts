@@ -9,6 +9,6 @@ export class AuthService {
     }
 
     async generatePasswordHash(password: string): Promise<string> {
-        return password// await bcrypt.hash(password, 10)
+        return await bcrypt.hash(password, 10)
     }
 }
