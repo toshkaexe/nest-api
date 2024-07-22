@@ -11,18 +11,15 @@ export class UsersService {
     ) {
     }
 
-    async create(
-        login: string,
-        password: string,
-        email: string,
-    ): Promise<string> {
+    async create(login: string, password: string, email: string): Promise<string> {
         const generatedPasswordHash =
             await this.authService.generatePasswordHash(password);
 
-        const newUser: any = {
+        const newUser = {
             login: login,
             password: generatedPasswordHash,
             email: email,
+            wwww: "ee",
             createdAt: new Date(),
         };
 

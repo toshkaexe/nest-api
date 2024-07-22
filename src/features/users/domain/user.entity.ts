@@ -1,32 +1,32 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument, Model } from 'mongoose';
+import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
+import {HydratedDocument, Model} from 'mongoose';
 
 @Schema()
 export class User {
-  @Prop({ type: String, required: true })
-  login: string;
+    @Prop({type: String, required: true})
+    login: string;
 
-  @Prop({ type: String, required: true })
-  password: string;
+    @Prop({type: String, required: true})
+    password: string;
 
-  @Prop({ type: String, required: true })
-  email: string;
+    @Prop({type: String, required: true})
+    email: string;
 
- // @Prop({ type: Date, default: new Date() })
- // createdAt: Date;
+    @Prop({type: Date, default: new Date()})
+    createdAt: Date;
 
-  /*  static createUser(login: string, email: string | null) {
-          const user = new this();
+    /*  static createUser(login: string, email: string | null) {
+            const user = new this();
 
-          user.login = login;
-          user.email = email ?? `${randomUUID()}_${login}@it-incubator.io`;
+            user.login = login;
+            user.email = email ?? `${randomUUID()}_${login}@it-incubator.io`;
 
-          return user;
-      }
+            return user;
+        }
 
-      getLogin() {
-          return this.login;
-      }*/
+        getLogin() {
+            return this.login;
+        }*/
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
@@ -36,7 +36,7 @@ UserSchema.loadClass(User);
 export type UserDocument = HydratedDocument<User>;
 
 type UserModelStaticType = {
-   createUser: (name: string, email: string | null) => UserDocument;
+    createUser: (name: string, email: string | null) => UserDocument;
 };
 
 export type UserModelType = Model<UserDocument>; //& UserModelStaticType;
