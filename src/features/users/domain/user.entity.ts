@@ -7,13 +7,13 @@ export class User {
   login: string;
 
   @Prop({ type: String, required: true })
-  passwordHash: string;
+  password: string;
 
   @Prop({ type: String, required: true })
   email: string;
 
-  @Prop({ type: Date, default: new Date() })
-  createdAt: Date;
+ // @Prop({ type: Date, default: new Date() })
+ // createdAt: Date;
 
   /*  static createUser(login: string, email: string | null) {
           const user = new this();
