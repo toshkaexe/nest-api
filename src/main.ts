@@ -11,7 +11,7 @@ async function bootstrap() {
     await app.listen(3000, () => {
         console.log('App starting listening port: ', AppSettings.PORT);
 
-        console.log('ENV: ', AppSettings.DB_NANE_NEST);
+        console.log('Our base: ', AppSettings.DB_NANE_NEST);
     });
 }
 

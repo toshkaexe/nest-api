@@ -12,7 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { BlogsService } from './blogs.service';
-import { CreateBlogDto } from './models/input/create-blog.dto';
+import { CreateBlogDto } from './api/models/input/create-blog.dto';
 
 @Controller('blogs')
 export class BlogsController {

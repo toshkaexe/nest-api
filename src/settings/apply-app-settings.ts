@@ -5,9 +5,10 @@ import {
     INestApplication,
     ValidationPipe,
 } from '@nestjs/common';
-import {LoggingInterceptor} from '../common/logging.interceptor';
+
 import {DocumentBuilder, SwaggerModule} from '@nestjs/swagger';
 import {HttpExceptionFilter} from '../common/exception-filters/http-exception-filter';
+import {LoggingInterceptor} from "../common/interceptors/logging.interceptor";
 
 const APP_PREFIX = '';
 

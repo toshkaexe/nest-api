@@ -1,77 +1,78 @@
-import { Injectable } from '@nestjs/common';
-import { User, UserModelType } from '../domain/user.entity';
+import {Injectable} from '@nestjs/common';
+import {User, UserModelType} from '../domain/user.entity';
 import {
-  UserOutputModel,
-  UserOutputModelMapper,
+    UserOutputModel,
+    UserOutputModelMapper,
 } from '../api/models/output/user-output.model';
 import {
-  PaginationOutput,
-  PaginationWithSearchLoginAndEmailTerm,
+    PaginationOutput,
+    PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/model/pagination.base.model';
-import { FilterQuery } from 'mongoose';
-import { InjectModel } from '@nestjs/mongoose';
+import {FilterQuery} from 'mongoose';
+import {InjectModel} from '@nestjs/mongoose';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectModel(User.name) private userModel: UserModelType) {}
-
-  async getById(id: string): Promise<UserOutputModel | null> {
-    const user = await this.userModel.findOne({ _id: id });
-
-    if (user === null) {
-      return null;
+    constructor(@InjectModel(User.name) private userModel: UserModelType) {
     }
 
-    return UserOutputModelMapper(user);
-  }
+    async getById(id: string): Promise<UserOutputModel | null> {
+        const user = await this.userModel.findOne({_id: id});
 
-  async getAll(
-    pagination: PaginationWithSearchLoginAndEmailTerm,
-  ): Promise<PaginationOutput<UserOutputModel>> {
-    const filters: FilterQuery<User>[] = [];
+        if (user === null) {
+            return null;
+        }
 
-    if (pagination.searchEmailTerm) {
-      filters.push({
-        email: { $regex: pagination.searchEmailTerm, $options: 'i' },
-      });
+        return UserOutputModelMapper(user);
     }
 
-    if (pagination.searchLoginTerm) {
-      filters.push({
-        login: { $regex: pagination.searchLoginTerm, $options: 'i' },
-      });
+    async getAll(
+        pagination: PaginationWithSearchLoginAndEmailTerm,
+    ): Promise<PaginationOutput<UserOutputModel>> {
+        const filters: FilterQuery<User>[] = [];
+
+        if (pagination.searchEmailTerm) {
+            filters.push({
+                email: {$regex: pagination.searchEmailTerm, $options: 'i'},
+            });
+        }
+
+        if (pagination.searchLoginTerm) {
+            filters.push({
+                login: {$regex: pagination.searchLoginTerm, $options: 'i'},
+            });
+        }
+
+        const filter: FilterQuery<User> = {};
+
+        if (filters.length > 0) {
+            filter.$or = filters;
+        }
+
+        return await this.__getResult(filter, pagination);
     }
 
-    const filter: FilterQuery<User> = {};
+    private async __getResult(
+        filter: FilterQuery<User>,
+        pagination: PaginationWithSearchLoginAndEmailTerm,
+    ): Promise<PaginationOutput<UserOutputModel>> {
+        const users = await this.userModel
+            .find(filter)
+            .sort({
+                [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
+            })
+            .skip(pagination.getSkipItemsCount())
+            .limit(pagination.pageSize);
 
-    if (filters.length > 0) {
-      filter.$or = filters;
+        const totalCount = await this.userModel.countDocuments(filter);
+
+        const mappedPosts = users.map(UserOutputModelMapper);
+
+        return new PaginationOutput<UserOutputModel>(
+            mappedPosts,
+            pagination.pageNumber,
+            pagination.pageSize,
+            totalCount,
+        );
     }
-
-    return await this.__getResult(filter, pagination);
-  }
-
-  private async __getResult(
-    filter: FilterQuery<User>,
-    pagination: PaginationWithSearchLoginAndEmailTerm,
-  ): Promise<PaginationOutput<UserOutputModel>> {
-    const users = await this.userModel
-      .find(filter)
-      .sort({
-        [pagination.sortBy]: pagination.getSortDirectionInNumericFormat(),
-      })
-      .skip(pagination.getSkipItemsCount())
-      .limit(pagination.pageSize);
-
-    const totalCount = await this.userModel.countDocuments(filter);
-
-    const mappedPosts = users.map(UserOutputModelMapper);
-
-    return new PaginationOutput<UserOutputModel>(
-      mappedPosts,
-      pagination.pageNumber,
-      pagination.pageSize,
-      totalCount,
-    );
-  }
 }

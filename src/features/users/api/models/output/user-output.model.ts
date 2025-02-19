@@ -15,7 +15,7 @@ export const UserOutputModelMapper = (user: UserDocument): UserOutputModel => {
     outputModel.id = user.id;
     outputModel.login = user.login;
     outputModel.email = user.email;
-  //  outputModel.createdAt = user.createdAt.toISOString();
+    outputModel.createdAt = user.createdAt.toISOString();
 
     return outputModel;
 };

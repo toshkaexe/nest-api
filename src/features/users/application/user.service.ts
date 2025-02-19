@@ -19,7 +19,7 @@ export class UsersService {
             login: login,
             password: generatedPasswordHash,
             email: email,
-            wwww: "ee",
+            wwww: "www.ya.ru",
             createdAt: new Date(),
         };
 

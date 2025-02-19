@@ -8,7 +8,7 @@ import {
     NotFoundException,
     Param,
     Post,
-    Query,
+    Query, UseInterceptors,
 } from '@nestjs/common';
 
 import {UserOutputModel} from './models/output/user-output.model';
@@ -21,6 +21,7 @@ import {
 } from '../../../base/model/pagination.base.model';
 import {UsersQueryRepository} from '../infrastucture/users.query-repository';
 import {User} from "../domain/user.entity";
+import {LoggingInterceptor} from "../../../common/interceptors/logging.interceptor";
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
     ['login', 'email'];
@@ -28,6 +29,7 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 // Tag для swagger
 @ApiTags('Users')
 @Controller('users')
+@UseInterceptors(LoggingInterceptor)
 export class UsersController {
     constructor(
         private readonly usersService: UsersService,
@@ -70,12 +72,20 @@ export class UsersController {
         return createdUser;
     }
 
+    @Get(':id')
+    @HttpCode(201)
+    async getUserById(@Param('id') id: string){
+
+       // await this.usersService.create()
+    }
+
     // :id в декораторе говорит nest о том что это параметр
     // Можно прочитать с помощью @Param("id") и передать в property такое же название параметра
     // Если property не указать, то вернется объект @Param()
     @Delete(':id')
     // Для переопределения default статус кода https://docs.nestjs.com/controllers#status-code
     @HttpCode(204)
+
     async delete(@Param('id') id: string) {
         const deletingResult: boolean = await this.usersService.delete(id);
 
