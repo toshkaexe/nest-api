@@ -1,9 +1,11 @@
-import {Injectable, OnModuleInit} from '@nestjs/common';
+import {Injectable, Logger, OnModuleInit} from '@nestjs/common';
 import {InjectConnection} from '@nestjs/mongoose';
 import {Connection} from 'mongoose';
 
 @Injectable()
 export class AppService implements OnModuleInit {
+    private readonly logger = new Logger(AppService.name);
+
     constructor(@InjectConnection() private readonly connection: Connection) {
     }
 
@@ -18,9 +20,9 @@ export class AppService implements OnModuleInit {
     async checkDatabaseConnection() {
         try {
             await this.connection.asPromise();
-            console.log('Connection to MongoDB established successfully.');
+            this.logger.log('Connection to MongoDB established successfully.');
         } catch (error) {
-            console.error('Failed to connect to MongoDB:', error.message);
+            this.logger.error('Failed to connect to MongoDB:', error.message);
         }
     }
 }
