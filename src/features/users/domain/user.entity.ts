@@ -32,7 +32,7 @@ export class User {
 export const UserSchema = SchemaFactory.createForClass(User);
 UserSchema.loadClass(User);
 
-// Types
+// Типизация документа
 export type UserDocument = HydratedDocument<User>;
 
 type UserModelStaticType = {

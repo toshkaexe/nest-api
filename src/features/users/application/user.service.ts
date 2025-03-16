@@ -31,4 +31,8 @@ export class UsersService {
     async delete(id: string): Promise<boolean> {
         return this.usersRepository.delete(id);
     }
+
+    async deleteAll(): Promise<boolean> {
+        return this.usersRepository.deleteAll();
+    }
 }
