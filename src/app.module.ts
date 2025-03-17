@@ -12,6 +12,7 @@ import {UsersQueryRepository} from "./features/users/infrastucture/users.query-r
 import {User, UserSchema} from "./features/users/domain/user.entity";
 import {AuthService} from "./features/auth/auth.service";
 import {TestingController} from "./features/testing/api/testing.controller";
+import {WelcomePageController} from "./features/testing/api/welkomePage.controller";
 
 const usersProviders: Provider[] = [
     UsersRepository,
@@ -28,7 +29,7 @@ const usersProviders: Provider[] = [
     ],
     providers: [AppService, ...usersProviders, AuthService,
     ],
-    controllers: [UsersController, TestingController],
+    controllers: [UsersController, TestingController, WelcomePageController],
 })
 export class AppModule {
 }

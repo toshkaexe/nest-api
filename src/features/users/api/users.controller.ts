@@ -77,6 +77,7 @@ export class UsersController {
     async getUserById(@Param('id') id: string){
 
        // await this.usersService.create()
+        console.log("getById")
     }
 
     // :id в декораторе говорит nest о том что это параметр

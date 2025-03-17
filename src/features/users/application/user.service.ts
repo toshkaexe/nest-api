@@ -33,6 +33,8 @@ export class UsersService {
     }
 
     async deleteAll(): Promise<boolean> {
-        return this.usersRepository.deleteAll();
+        const result= await this.usersRepository.deleteAll();
+        console.log(result)
+         return result;
     }
 }
