@@ -23,11 +23,6 @@ export class Blog {
 export const BlogSchema = SchemaFactory.createForClass(Blog);
 BlogSchema.loadClass(Blog);
 
-// Types
 export type BlogDocument = HydratedDocument<Blog>;
 
-//type UserModelStaticType = {
-//    createUser: (name: string, email: string | null) => UserDocument;
-//};
-
-export type BlogModelType = Model<BlogDocument>; //& UserModelStaticType;
+export type BlogModelType = Model<BlogDocument>;

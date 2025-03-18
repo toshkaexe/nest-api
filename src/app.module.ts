@@ -13,11 +13,19 @@ import {User, UserSchema} from "./features/users/domain/user.entity";
 import {AuthService} from "./features/auth/auth.service";
 import {TestingController} from "./features/testing/api/testing.controller";
 import {WelcomePageController} from "./features/testing/api/welkomePage.controller";
+import {BlogsController} from "./features/blogs/blogs.controller";
+import {BlogsRepository} from "./features/blogs/infrastructura/blogs.repository";
+import {BlogsService} from "./features/blogs/blogs.service";
+import {Blog, BlogSchema} from "./features/blogs/domain/blog.entity";
 
 const usersProviders: Provider[] = [
     UsersRepository,
     UsersService,
     UsersQueryRepository,
+];
+const blogsProviders: Provider[] = [
+    BlogsRepository,
+    BlogsService
 ];
 
 @Module({
@@ -26,10 +34,11 @@ const usersProviders: Provider[] = [
             `${AppSettings.MONGO_URI_CLOUD}/${AppSettings.DB_NANE_NEST}`,
         ),
         MongooseModule.forFeature([{name: User.name, schema: UserSchema}]),
+        MongooseModule.forFeature([{name: Blog.name, schema: BlogSchema}]),
     ],
-    providers: [AppService, ...usersProviders, AuthService,
+    providers: [AppService, ...usersProviders,...blogsProviders, AuthService,
     ],
-    controllers: [UsersController, TestingController, WelcomePageController],
+    controllers: [UsersController, TestingController, WelcomePageController, BlogsController],
 })
 export class AppModule {
 }
