@@ -32,10 +32,10 @@ export class BlogsService {
     }
 
     async remove(id: string): Promise<boolean> {
-        return this.blogsRepository.delete(id);
+        return await this.blogsRepository.delete(id);
     }
 
     async findBlogById(id: string): Promise<Blog | null> {
-        return this.blogsRepository.getById(id);
+        return await this.blogsRepository.getById(id);
     }
 }

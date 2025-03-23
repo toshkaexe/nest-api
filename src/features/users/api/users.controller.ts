@@ -22,6 +22,7 @@ import {
 import {UsersQueryRepository} from '../infrastucture/users.query-repository';
 import {User} from "../domain/user.entity";
 import {LoggingInterceptor} from "../../../common/interceptors/logging.interceptor";
+import {Types} from "mongoose";
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
     ['login', 'email'];
@@ -74,22 +75,27 @@ export class UsersController {
     }
 
     @Get(':id')
-    @HttpCode(201)
+    @HttpCode(200)
     async getUserById(@Param('id') id: string) {
+        const user: UserOutputModel | null = await this.usersQueryRepository.getById(id);
 
-        // await this.usersService.create()
-        console.log("getById")
+        if (user === null) {
+            throw new NotFoundException(`User with id ${id} not found`);
+        }
+
+        return user;
     }
 
     // :id в декораторе говорит nest о том что это параметр
     // Можно прочитать с помощью @Param("id") и передать в property такое же название параметра
     // Если property не указать, то вернется объект @Param()
-    @Delete(':id')
-    // Для переопределения default статус кода https://docs.nestjs.com/controllers#status-code
     @HttpCode(204)
-
+    @Delete(':id')
     async delete(@Param('id') id: string) {
-        const deletingResult: boolean = await this.usersService.delete(id);
+        if (!Types.ObjectId.isValid(id)) {
+            throw new NotFoundException(`User with id ${id} not found`);
+        }
+        const deletingResult: boolean = await this.usersService.removeById(id);
 
         if (!deletingResult) {
             throw new NotFoundException(`User with id ${id} not found`);

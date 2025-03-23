@@ -28,8 +28,10 @@ export class UsersService {
         return createdUserId;
     }
 
-    async delete(id: string): Promise<boolean> {
-        return this.usersRepository.delete(id);
+    async removeById(id: string): Promise<boolean> {
+        let b = await this.usersRepository.delete(id);
+        console.log(b)
+        return b;
     }
 
     async deleteAll(): Promise<boolean> {
