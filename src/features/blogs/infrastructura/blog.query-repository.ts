@@ -7,7 +7,7 @@ import {
 import {FilterQuery} from 'mongoose';
 import {InjectModel} from '@nestjs/mongoose';
 import {Blog, BlogModelType} from "../domain/blog.entity";
-import {BlogOutputModel, BlogOutputModelMapper} from "../api/models/output/blog.output.dto";
+import {BlogOutputModel, BlogOutputModelMapper} from "../api/models/output/blog.output.model";
 import {UserOutputModel} from "../../users/api/models/output/user-output.model";
 
 @Injectable()

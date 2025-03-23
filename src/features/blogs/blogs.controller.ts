@@ -20,7 +20,7 @@ import {PaginationOutput, PaginationWithSearchLoginAndEmailTerm} from "../../bas
 import {UserOutputModel} from "../users/api/models/output/user-output.model";
 import {USERS_SORTING_PROPERTIES} from "../users/api/users.controller";
 import {BlogsQueryRepository} from "./infrastructura/blog.query-repository";
-import {BlogOutputModel} from "./api/models/output/blog.output.dto";
+import {BlogOutputModel} from "./api/models/output/blog.output.model";
 import {SortingPropertiesType} from "../../base/model/sorting-properies.types";
 import {Schema, Types} from "mongoose";
 

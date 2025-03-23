@@ -16,7 +16,7 @@ export class BlogsRepository {
         return insertResult[0].id;
     }
 
-    async getById(id: string): Promise<Blog | null> {
+    async getBlogById(id: string): Promise<Blog | null> {
         const blog = await this.BlogModel.findOne({_id: id});
 
         if (!blog) {
@@ -45,4 +45,7 @@ export class BlogsRepository {
         const deleteResult = await this.BlogModel.deleteMany({});
         return !deleteResult; // Returns true if at least one document was deleted
     }
+
+
+
 }

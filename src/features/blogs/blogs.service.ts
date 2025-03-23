@@ -36,6 +36,6 @@ export class BlogsService {
     }
 
     async findBlogById(id: string): Promise<Blog | null> {
-        return await this.blogsRepository.getById(id);
+        return await this.blogsRepository.getBlogById(id);
     }
 }
