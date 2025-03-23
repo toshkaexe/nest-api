@@ -23,6 +23,14 @@ export class Blog {
 export const BlogSchema = SchemaFactory.createForClass(Blog);
 BlogSchema.loadClass(Blog);
 
+BlogSchema.set('toJSON', {
+    virtuals: true,
+    versionKey: false, // 👈 отключает __v
+    transform: (_, ret) => {
+        ret.id = ret._id.toString();
+        delete ret._id;
+    },
+});
 export type BlogDocument = HydratedDocument<Blog> & { _id: Types.ObjectId };
 
 export type BlogModelType = Model<BlogDocument>;

@@ -19,7 +19,7 @@ export class BlogsService {
                 description: createModel.description,
                 websiteUrl: createModel.websiteUrl,
                 createdAt: new Date().toISOString(),
-                isMembership: true
+                isMembership: false
 
             }
         const savedBlog = await this.blogsRepository.save(createNewBlog);
