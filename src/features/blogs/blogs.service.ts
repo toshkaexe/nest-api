@@ -24,4 +24,10 @@ export class BlogsService {
         const insertNewBlog = await this.blogsRepository.create(createNewBlog);
         return insertNewBlog;
     }
+
+    async deleteAll(): Promise<boolean> {
+        const result= await this.blogsRepository.deleteAll();
+        console.log(result)
+        return result;
+    }
 }

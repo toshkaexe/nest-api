@@ -37,6 +37,7 @@ export class UsersController {
     ) {
     }
 
+    @HttpCode(200)
     @Get()
     async getAll(
         // Для работы с query
@@ -74,9 +75,9 @@ export class UsersController {
 
     @Get(':id')
     @HttpCode(201)
-    async getUserById(@Param('id') id: string){
+    async getUserById(@Param('id') id: string) {
 
-       // await this.usersService.create()
+        // await this.usersService.create()
         console.log("getById")
     }
 
