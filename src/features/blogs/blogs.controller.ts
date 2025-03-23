@@ -1,4 +1,5 @@
 import {
+    BadRequestException,
     Body,
     Controller,
     Delete,
@@ -21,6 +22,8 @@ import {USERS_SORTING_PROPERTIES} from "../users/api/users.controller";
 import {BlogsQueryRepository} from "./infrastructura/blog.query-repository";
 import {BlogOutputModel} from "./api/models/output/blog.output.dto";
 import {SortingPropertiesType} from "../../base/model/sorting-properies.types";
+import {Schema, Types} from "mongoose";
+
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
     ['name'];
@@ -59,17 +62,21 @@ export class BlogsController {
         return blogs;
     }
 
-//
-// @Get(':id')
-// async findOne(@Param('id', ObjectIdValidationPipe) id: string) {
-//   const blog = await this.blogsService.findOne(id);
-//
-//   if (!blog) {
-//     throw new NotFoundException(`Blog with ID ${id} not found`);
-//   }
-//
-//   return blog;
-// }
+
+@Get(':id')
+@HttpCode(200)
+async findOne(@Param('id') id: string) {
+    if (!Types.ObjectId.isValid(id)) {
+        throw new BadRequestException(`Invalid ID format: ${id}`);
+    }
+  const blog = await this.blogsService.findBlogById(id);
+
+  if (!blog) {
+    throw new NotFoundException(`Blog with ID ${id} not found`);
+  }
+
+  return blog;
+}
 
     /*  @HttpCode(204)
     @Put(':id')
@@ -84,13 +91,13 @@ export class BlogsController {
       }
     }*/
 
-// @HttpCode(204)
-// @Delete(':id')
-// async remove(@Param('id') id: string) {
-//   const deleteResult = await this.blogsService.remove(id);
-//
-//   if (!deleteResult) {
-//     throw new NotFoundException(`Couldn't delete Blog with ID ${id}`);
-//   }
-// }
+@HttpCode(204)
+@Delete(':id')
+async remove(@Param('id') id: string) {
+  const deleteResult = await this.blogsService.remove(id);
+
+  if (!deleteResult) {
+    throw new NotFoundException(`Couldn't delete Blog with ID ${id}`);
+  }
+}
 }

@@ -30,4 +30,12 @@ export class BlogsService {
         console.log(result)
         return result;
     }
+
+    async remove(id: string): Promise<boolean> {
+        return this.blogsRepository.delete(id);
+    }
+
+    async findBlogById(id: string): Promise<Blog | null> {
+        return this.blogsRepository.getById(id);
+    }
 }
