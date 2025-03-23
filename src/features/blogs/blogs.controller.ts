@@ -65,7 +65,7 @@ export class BlogsController {
 
 @Get(':id')
 @HttpCode(200)
-async findOne(@Param('id') id: string) {
+async getBlogByID(@Param('id') id: string) {
     if (!Types.ObjectId.isValid(id)) {
         throw new BadRequestException(`Invalid ID format: ${id}`);
     }
