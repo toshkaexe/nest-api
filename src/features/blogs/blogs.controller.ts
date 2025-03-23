@@ -63,20 +63,20 @@ export class BlogsController {
     }
 
 
-@Get(':id')
-@HttpCode(200)
-async getBlogByID(@Param('id') id: string) {
-    if (!Types.ObjectId.isValid(id)) {
-        throw new BadRequestException(`Invalid ID format: ${id}`);
+    @Get(':id')
+    @HttpCode(200)
+    async getBlogByID(@Param('id') id: string) {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new NotFoundException(`Blog with ID ${id} not found`);
+        }
+        const blog = await this.blogsService.findBlogById(id);
+
+        if (!blog) {
+            throw new NotFoundException(`Blog with ID ${id} not found`);
+        }
+
+        return blog;
     }
-  const blog = await this.blogsService.findBlogById(id);
-
-  if (!blog) {
-    throw new NotFoundException(`Blog with ID ${id} not found`);
-  }
-
-  return blog;
-}
 
     /*  @HttpCode(204)
     @Put(':id')
@@ -91,13 +91,13 @@ async getBlogByID(@Param('id') id: string) {
       }
     }*/
 
-@HttpCode(204)
-@Delete(':id')
-async remove(@Param('id') id: string) {
-  const deleteResult = await this.blogsService.remove(id);
+    @HttpCode(204)
+    @Delete(':id')
+    async remove(@Param('id') id: string) {
+        const deleteResult = await this.blogsService.remove(id);
 
-  if (!deleteResult) {
-    throw new NotFoundException(`Couldn't delete Blog with ID ${id}`);
-  }
-}
+        if (!deleteResult) {
+            throw new NotFoundException(`Couldn't delete Blog with ID ${id}`);
+        }
+    }
 }
