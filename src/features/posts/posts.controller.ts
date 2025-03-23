@@ -1,11 +1,19 @@
 import {ApiTags} from "@nestjs/swagger";
-import {Body, Controller, HttpCode, Post, UseInterceptors, ValidationPipe} from "@nestjs/common";
+import {Body, Controller, Get, HttpCode, Post, Query, UseInterceptors, ValidationPipe} from "@nestjs/common";
 import {LoggingInterceptor} from "../../common/interceptors/logging.interceptor";
 import {PostsService} from "./posts.service";
 import {CreateBlogModel} from "../blogs/api/models/input/create-blog.model";
 import {BlogsRepository} from "../blogs/infrastructura/blogs.repository";
 import {CreateNewPost} from "./models/input/create-new-post.model";
+import {PaginationOutput, PaginationWithSearchLoginAndEmailTerm} from "../../base/model/pagination.base.model";
+import {BlogOutputModel} from "../blogs/api/models/output/blog.output.model";
 
+import {OutputPostModel} from "./models/output/posts.output.model";
+import {SortingPropertiesType} from "../../base/model/sorting-properies.types";
+import {PostsQueryRepository} from "./infrastructura/posts.query-repository";
+
+export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<OutputPostModel> =
+    ['title'];
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -13,8 +21,7 @@ import {CreateNewPost} from "./models/input/create-new-post.model";
 export class PostsController {
     constructor(
         private readonly postsService: PostsService,
-
-     //   private readonly postsQueryRepository: PostsQueryRepository
+        private readonly postsQueryRepository: PostsQueryRepository
     ) {
     }
 
@@ -25,5 +32,23 @@ export class PostsController {
     ) {
         return this.postsService.create(newPost);
     }
+
+    @HttpCode(200)
+    @Get()
+    async findAll(
+        @Query() query: any): Promise<PaginationOutput<OutputPostModel>> {
+        const
+            pagination: PaginationWithSearchLoginAndEmailTerm =
+                new PaginationWithSearchLoginAndEmailTerm(
+                    query,
+                    POSTS_SORTING_PROPERTIES,
+                );
+
+        const posts: PaginationOutput<OutputPostModel> =
+            await this.postsQueryRepository.getAll(pagination);
+
+        return posts;
+    }
+
 
 }

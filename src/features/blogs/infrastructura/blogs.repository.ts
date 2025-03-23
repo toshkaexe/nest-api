@@ -10,10 +10,10 @@ export class BlogsRepository {
     constructor(@InjectModel(Blog.name) private BlogModel: BlogModelType) {
     }
 
-    async create(newBlog: Blog): Promise<string> {
+    async save(newBlog: Blog): Promise<Blog> {
         const insertResult = await this.BlogModel.insertMany([newBlog]);
 
-        return insertResult[0].id;
+        return insertResult[0];
     }
 
     async getBlogById(id: string): Promise<Blog | null> {

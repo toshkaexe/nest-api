@@ -1,5 +1,5 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
-import {HydratedDocument, Model} from 'mongoose';
+import {HydratedDocument, Model, Types} from 'mongoose';
 
 @Schema()
 export class Blog {
@@ -23,6 +23,6 @@ export class Blog {
 export const BlogSchema = SchemaFactory.createForClass(Blog);
 BlogSchema.loadClass(Blog);
 
-export type BlogDocument = HydratedDocument<Blog>;
+export type BlogDocument = HydratedDocument<Blog> & { _id: Types.ObjectId };
 
 export type BlogModelType = Model<BlogDocument>;

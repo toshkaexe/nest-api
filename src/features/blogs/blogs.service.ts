@@ -2,6 +2,7 @@ import {CreateBlogModel} from "./api/models/input/create-blog.model";
 import {Injectable} from "@nestjs/common";
 import {BlogsRepository} from "./infrastructura/blogs.repository";
 import {Blog} from "./domain/blog.entity";
+import {BlogOutputModel, BlogOutputModelMapper} from "./api/models/output/blog.output.model";
 
 @Injectable()
 export class BlogsService {
@@ -10,7 +11,7 @@ export class BlogsService {
     ) {
     }
 
-    async create(createModel: CreateBlogModel): Promise<string> {
+    async create(createModel: CreateBlogModel): Promise<Blog> {
 
         const createNewBlog: Blog =
             {
@@ -21,8 +22,9 @@ export class BlogsService {
                 isMembership: true
 
             }
-        const insertNewBlog = await this.blogsRepository.create(createNewBlog);
-        return insertNewBlog;
+        const savedBlog = await this.blogsRepository.save(createNewBlog);
+
+        return savedBlog;
     }
 
     async deleteAll(): Promise<boolean> {

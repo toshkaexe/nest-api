@@ -22,6 +22,7 @@ import {PostsService} from "./features/posts/posts.service";
 import {PostsController} from "./features/posts/posts.controller";
 import {PostsRepository} from "./features/posts/infrastructura/posts.repository";
 import {Posts, PostsSchema} from "./features/posts/models/domain/posts.entity";
+import {PostsQueryRepository} from "./features/posts/infrastructura/posts.query-repository";
 
 const usersProviders: Provider[] = [
     UsersRepository,
@@ -37,6 +38,7 @@ const blogsProviders: Provider[] = [
 const postsProviders: Provider[] = [
     PostsRepository,
     PostsService,
+    PostsQueryRepository
 ];
 
 @Module({
