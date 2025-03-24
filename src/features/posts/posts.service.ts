@@ -98,4 +98,9 @@ export class PostsService {
         const createdPostId = await this.postsRepository.save(createBlogDto);
         return createdPostId;
     }
+
+    async remove(id: string) {
+        return await this.postsRepository.delete(id);
+
+    }
 }

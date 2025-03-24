@@ -43,4 +43,9 @@ export class PostsRepository {
     }
 
 
+    async delete(id: string) {
+        const deletingResult = await this.PostModel.deleteOne({_id: id});
+        return !deletingResult;
+
+    }
 }
