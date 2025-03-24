@@ -1,5 +1,40 @@
 import {Prop, Schema, SchemaFactory} from '@nestjs/mongoose';
 import {HydratedDocument, Model} from 'mongoose';
+import {NamesList} from "../output/posts.output.model";
+
+
+// Определяем схему вложенного объекта
+
+@Schema({_id: false})
+export class NamesListSchema {
+    @Prop({type: String, required: true})
+    addedAt: string;
+
+    @Prop({type: String, required: true})
+    userId: string;
+
+    @Prop({type: String, required: true})
+    login: string;
+}
+
+@Schema({_id: false})
+export class ExtendedLikesInfo {
+    @Prop({type: Number, required: true})
+    likesCount: number;
+
+    @Prop({type: Number, required: true})
+    dislikesCount: number;
+
+
+    @Prop({type: String, required: true})
+    myStatus: string;
+
+    @Prop({type: [NamesListSchema], required: true})
+    newestLikes: NamesList[];
+}
+
+const ExtendedLikesInfoSchema =
+    SchemaFactory.createForClass(ExtendedLikesInfo);
 
 @Schema()
 export class Posts {
@@ -18,33 +53,12 @@ export class Posts {
     @Prop({type: String, required: true})
     blogName: string;
 
-    @Prop({type: Date, default: Date.now})
+    @Prop({type: Date, default: Date.now, required: true})
     createdAt: Date;
 
-    @Prop({
-        type: {
-            likesCount: Number,
-            dislikesCount: Number,
-            myStatus: String,
-            newestLikes: [
-                {
-                    addedAt: String,
-                    userId: String,
-                    login: String,
-                },
-            ],
-        }
-    })
-    extendedLikesInfo: {
-        likesCount: number;
-        dislikesCount: number;
-        myStatus: string;
-        newestLikes: {
-            addedAt: string;
-            userId: string;
-            login: string;
-        }[];
-    };
+    @Prop({type: ExtendedLikesInfoSchema, required: true})
+    extendedLikesInfo: ExtendedLikesInfo;
+
 }
 
 
