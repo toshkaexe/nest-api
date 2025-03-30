@@ -1,4 +1,4 @@
-import {IsString, MaxLength} from 'class-validator';
+import {IsString, IsUrl, MaxLength} from 'class-validator';
 
 export class CreateNewPost {
     @IsString()

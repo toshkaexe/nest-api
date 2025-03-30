@@ -4,12 +4,15 @@ import {InjectModel} from "@nestjs/mongoose";
 import {Model, Types} from "mongoose";
 import {NotFoundException} from "@nestjs/common";
 import {CreatePostModel, OutputPostModel} from "../models/output/posts.output.model";
+import {Blog, BlogDocument} from "../../blogs/domain/blog.entity";
 
 
 export class PostsRepository {
     constructor(
         @InjectModel(Posts.name)
-        private PostModel: Model<PostsDocument>) {
+        private PostModel: Model<PostsDocument>,
+        @InjectModel(Blog.name)
+        private BlogModel: Model<BlogDocument>) {
     }
 
 
@@ -33,10 +36,12 @@ export class PostsRepository {
 
 
     async findById(id: string): Promise<Posts | null> {
-        if (!Types.ObjectId.isValid(id)) {
-            throw new NotFoundException(`Post with ID ${id} not found`);
+
+        const post = await this.PostModel.findById(id).exec();
+        if (!post) {
+          return null
         }
-        return await this.PostModel.findById(id).exec();
+        return post;
     }
 
     async deleteAll(): Promise<boolean> {
@@ -67,5 +72,23 @@ export class PostsRepository {
         const deletingResult = await this.PostModel.deleteOne({_id: id});
         return !deletingResult;
 
+    }
+    async update(id: string, body: Posts): Promise<boolean> {
+        if(!Types.ObjectId.isValid(id) ) return  false;
+
+        const blog = await this.BlogModel.findById(body.blogId);
+
+        if (!blog){return  false;}
+        const result =
+            await this.PostModel.updateOne({_id: new Types.ObjectId(id)},
+                {
+                    $set: {
+                        title: body.title,
+                        shortDescription: body.shortDescription,
+                        content: body.content,
+                        blogId: body.blogId
+                    }
+                });
+        return result.matchedCount === 1;
     }
 }

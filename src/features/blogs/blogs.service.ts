@@ -3,6 +3,7 @@ import {Injectable, NotFoundException} from "@nestjs/common";
 import {BlogsRepository} from "./infrastructura/blogs.repository";
 import {Blog} from "./domain/blog.entity";
 import {BlogOutputModel, BlogOutputModelMapper} from "./api/models/output/blog.output.model";
+import {UpdatePostsData} from "../posts/models/input/create-new-post.model";
 
 @Injectable()
 export class BlogsService {
@@ -41,7 +42,7 @@ export class BlogsService {
         return await this.blogsRepository.getBlogById(id);
     }
 
-    async update(id: string, updateModel: Blog): Promise<boolean> {
+    async update(id: string, updateModel: CreateBlogModel): Promise<boolean> {
         const blog = await this.blogsRepository.getBlogById(id);
         if (!blog) {
             throw new NotFoundException(`Blog with ID ${id} not found`);

@@ -68,7 +68,12 @@ export class PostsService {
     }
 
     async remove(id: string) {
-        return await this.postsRepository.delete(id);
+        const post = await this.postsRepository.findById(id);
+        if (!post) {
+            return false;
+        }
+        await this.postsRepository.delete(id);
+        return true;
 
     }
 
@@ -138,7 +143,7 @@ export class PostsService {
         post.blogId = updateModel.blogId;
 
 
-//        const updatedPost = await this.postsRepository.updatepost(post);
+        const updatedPost = await this.postsRepository.update(id, post);
         return 100;
     }
 

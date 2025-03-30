@@ -85,7 +85,7 @@ export class BlogsController {
     @Put(':id')
     async update(
         @Param('id') id: string,
-        @Body(new ValidationPipe({ transform: true })) updateBlogDto: Blog,
+        @Body(new ValidationPipe({ transform: true })) updateBlogDto: CreateBlogModel,
     ) {
         const updateResult = await this.blogsService.update(id, updateBlogDto);
 
