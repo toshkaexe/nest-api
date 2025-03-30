@@ -35,7 +35,8 @@ export class BlogsService {
     }
 
     async remove(id: string): Promise<boolean> {
-        return await this.blogsRepository.delete(id);
+        const b = await this.blogsRepository.delete(id);
+        return b;
     }
 
     async findBlogById(id: string): Promise<Blog | null> {

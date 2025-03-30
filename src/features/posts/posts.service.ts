@@ -72,8 +72,8 @@ export class PostsService {
         if (!post) {
             return false;
         }
-        await this.postsRepository.delete(id);
-        return true;
+       return await this.postsRepository.delete(id);
+
 
     }
 

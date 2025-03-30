@@ -50,27 +50,9 @@ export class PostsRepository {
     }
 
 
-    static async deletePost(id: string) {
-
-        if (!Types.ObjectId.isValid(id)) {
-            throw new NotFoundException(`Post with id ${id} not found`);
-        }
-        /*        if (!ObjectId.isValid(id)) return false;
-
-                try {
-                    const result =
-                        await this.PostModel.deleteOne({_id: new ObjectId(id)});
-                    return result.deletedCount === 1;
-                } catch (err) {
-                    console.log("error = ", err)
-                    return false
-                }*/
-    }
-
-
     async delete(id: string) {
         const deletingResult = await this.PostModel.deleteOne({_id: id});
-        return !deletingResult;
+        return deletingResult.deletedCount > 0;
 
     }
     async update(id: string, body: Posts): Promise<boolean> {

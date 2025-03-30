@@ -95,12 +95,11 @@ export class BlogsController {
     }
 
     @HttpCode(204)
-    @Delete(':id')
-    async remove(@Param('id') id: string) {
-        const deleteResult = await this.blogsService.remove(id);
-
+    @Delete(':blogId')
+    async remove(@Param('blogId') blogId: string) {
+        const deleteResult = await this.blogsService.remove(blogId);
         if (!deleteResult) {
-            throw new NotFoundException(`Couldn't delete Blog with ID ${id}`);
+            throw new NotFoundException(`Couldn't delete Blog with ID ${blogId}`);
         }
     }
 

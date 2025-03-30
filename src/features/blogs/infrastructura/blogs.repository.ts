@@ -33,8 +33,8 @@ export class BlogsRepository {
     }
 
     async delete(id: string): Promise<boolean> {
-        const deletingResult = await this.BlogModel.deleteOne({_id: id});
-        return !deletingResult;
+        const deleteResult = await this.BlogModel.deleteOne({ _id: id });
+        return deleteResult.deletedCount > 0;
     }
 
     async update(id: string, blog: Blog): Promise<boolean> {
