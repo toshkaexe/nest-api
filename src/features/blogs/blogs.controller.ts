@@ -26,6 +26,9 @@ import {Schema, Types} from "mongoose";
 import {CreateNewPost, CreateNewPostForGivenBlogId} from "../posts/models/input/create-new-post.model";
 import {PostsService} from "../posts/posts.service";
 import {Blog} from "./domain/blog.entity";
+import {OutputPostModel} from "../posts/models/output/posts.output.model";
+import {POSTS_SORTING_PROPERTIES} from "../posts/posts.controller";
+import {PostsQueryRepository} from "../posts/infrastructura/posts.query-repository";
 
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
@@ -37,7 +40,8 @@ export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
 export class BlogsController {
     constructor(private readonly blogsService: BlogsService,
                 private readonly postsService: PostsService,
-                private readonly blogsQueryRepository: BlogsQueryRepository) {
+                private readonly blogsQueryRepository: BlogsQueryRepository,
+                private readonly postsQueryRepository: PostsQueryRepository) {
 
     }
 
@@ -112,5 +116,22 @@ export class BlogsController {
         console.log("----")
         console.log("createPostForBlog newPost = ", newPost)
         return this.postsService.createPostForBlog(blogId, newPost);
+    }
+
+
+    @HttpCode(200)
+    @Get(':blogId/posts')
+    async getPostsForBlog(
+        @Param('blogId') blogId: string,
+        @Query() query: any
+    ): Promise<PaginationOutput<OutputPostModel>> {
+        const pagination = new PaginationWithSearchLoginAndEmailTerm(query, POSTS_SORTING_PROPERTIES);
+        const posts = await this.postsQueryRepository.getPostsForBlog(blogId, pagination);
+
+        if (!posts.items.length) {
+            throw new NotFoundException(`No posts found for Blog with ID ${blogId}`);
+        }
+
+        return posts;
     }
 }
