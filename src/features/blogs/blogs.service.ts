@@ -24,7 +24,7 @@ export class BlogsService {
             }
         const savedBlog = await this.blogsRepository.save(createNewBlog);
 
-        return savedBlog;
+        return BlogOutputModelMapper(savedBlog);
     }
 
     async deleteAll(): Promise<boolean> {

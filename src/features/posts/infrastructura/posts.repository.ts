@@ -1,22 +1,29 @@
 import {BlogsRepository} from "../../blogs/infrastructura/blogs.repository";
-import {Posts, PostsModelType} from "../models/domain/posts.entity";
+import {Posts, PostsDocument, PostsModelType} from "../models/domain/posts.entity";
 import {InjectModel} from "@nestjs/mongoose";
-import {Types} from "mongoose";
+import {Model, Types} from "mongoose";
 import {NotFoundException} from "@nestjs/common";
-import {CreatePostModel, OutputPostModel, postMapper} from "../models/output/posts.output.model";
+import {CreatePostModel, OutputPostModel} from "../models/output/posts.output.model";
 
 
 export class PostsRepository {
     constructor(
         @InjectModel(Posts.name)
-        private PostModel: PostsModelType) {
+        private PostModel: Model<PostsDocument>) {
     }
 
-    async save(newPost: CreatePostModel): Promise<Posts> {
 
-        const insertResult = await this.PostModel.insertMany([newPost]);
-        console.log("insertResult = ", insertResult)
-        return insertResult[0].id;
+    async save(newPost: CreatePostModel): Promise<Posts> {
+        const createdPost = new this.PostModel(newPost);
+        return await createdPost.save();
+    }
+
+
+    async findById(id: string): Promise<Posts | null> {
+        if (!Types.ObjectId.isValid(id)) {
+            throw new NotFoundException(`Post with ID ${id} not found`);
+        }
+        return await this.PostModel.findById(id).exec();
     }
 
     async deleteAll(): Promise<boolean> {

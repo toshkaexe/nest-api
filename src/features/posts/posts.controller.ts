@@ -5,7 +5,7 @@ import {
     Delete,
     Get,
     HttpCode,
-    NotFoundException,
+    NotFoundException, Param,
     Post,
     Query,
     UseInterceptors,
@@ -22,6 +22,7 @@ import {BlogOutputModel} from "../blogs/api/models/output/blog.output.model";
 import {OutputPostModel} from "./models/output/posts.output.model";
 import {SortingPropertiesType} from "../../base/model/sorting-properies.types";
 import {PostsQueryRepository} from "./infrastructura/posts.query-repository";
+import {Posts} from "./models/domain/posts.entity";
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<OutputPostModel> =
     ['title'];
@@ -44,6 +45,8 @@ export class PostsController {
         return this.postsService.create(newPost);
     }
 
+
+
     @HttpCode(200)
     @Get()
     async findAll(
@@ -60,14 +63,24 @@ export class PostsController {
 
         return posts;
     }
+
     @HttpCode(204)
     @Delete(':id')
     async deletePost(id: string) {
-        const deleteResult= this.postsService.remove(id);
-        if(!deleteResult){
+        const deleteResult = this.postsService.remove(id);
+        if (!deleteResult) {
             throw new NotFoundException(`Couldn't delete Post with ID ${id}`);
 
         }
+    }
+    @HttpCode(200)
+    @Get(':id')
+    async findOne(@Param('id') id: string): Promise<Posts> {
+        const post = await this.postsService.findOne(id);
+        if (!post) {
+            throw new NotFoundException(`Post with ID ${id} not found`);
+        }
+        return post;
     }
 
 

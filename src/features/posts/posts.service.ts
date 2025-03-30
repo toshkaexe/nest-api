@@ -1,10 +1,11 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
 import {BlogsRepository} from "../blogs/infrastructura/blogs.repository";
 import {PostsRepository} from "./infrastructura/posts.repository";
-import {CreateNewPost} from "./models/input/create-new-post.model";
+import {CreateNewPost, CreateNewPostForGivenBlogId} from "./models/input/create-new-post.model";
 import {OutputPostModel} from "./models/output/posts.output.model";
 import {Posts, PostsDocument} from "./models/domain/posts.entity";
 import {Model} from "mongoose";
+import {Blog} from "../blogs/domain/blog.entity";
 
 
 @Injectable()
@@ -26,40 +27,7 @@ export class PostsService {
 
         }
         const publishedAt = new Date().toISOString();
-        const newPost: {
-            createdAt: string;
-            blogName: string;
-            extendedLikesInfo: {
-                likesCount: number;
-                newestLikes: { addedAt: string; login: string; userId: string }[];
-                dislikesCount: number;
-                myStatus: string
-            };
-            shortDescription: string;
-            title: string;
-            blogId: string;
-            content: string
-        } = {
-            title: data.title,
-            shortDescription: data.shortDescription,
-            content: data.content,
-            blogId: data.blogId,
-            blogName: blog.name,
-            createdAt: publishedAt,
-            extendedLikesInfo: {
-                likesCount: 0,
-                dislikesCount: 0,
-                myStatus: "None",
-                newestLikes: [
-                    {
-                        addedAt: publishedAt,
-                        userId: "string",
-                        login: "string"
-                    }
-                ]
-            }
 
-        }
         const createBlogDto: {
             createdAt: string;
             blogName: string;
@@ -103,4 +71,59 @@ export class PostsService {
         return await this.postsRepository.delete(id);
 
     }
+
+    async createPostForBlog(blogId: string, newPost: CreateNewPostForGivenBlogId) {
+        const blog: Blog | null = await this.blogsRepository.getBlogById(blogId);
+        console.log("blog = ", blog)
+        if (!blog) {
+            throw new NotFoundException(`Blog with ID ${blogId} not found`);
+        }
+
+        const publishedAt = new Date().toISOString();
+
+        const post: {
+            createdAt: string;
+            blogName: string;
+            extendedLikesInfo: {
+                likesCount: number;
+                newestLikes: { addedAt: string; login: string; userId: string }[];
+                dislikesCount: number;
+                myStatus: string;
+            };
+            shortDescription: string;
+            title: string;
+            blogId: string;
+            content: string;
+        } = {
+            title: newPost.title,
+            shortDescription: newPost.shortDescription,
+            content: newPost.content,
+            blogId: blogId,
+            blogName: blog.name,
+            createdAt: publishedAt,
+            extendedLikesInfo: {
+                likesCount: 0,
+                dislikesCount: 0,
+                myStatus: "None",
+                newestLikes: [
+                    {
+                        addedAt: publishedAt,
+                        userId: "string",
+                        login: "string"
+                    }
+                ]
+            }
+        };
+
+        const createdPost = await this.postsRepository.save(post);
+
+        console.log("createdPost!!!!!!!!!!!! = ", createdPost)
+        return createdPost;
+    }
+
+    async findOne(id: string): Promise<Posts | null> {
+        const newVar = await this.postsRepository.findById(id);
+        return newVar;
+    }
+
 }

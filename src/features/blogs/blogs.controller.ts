@@ -23,6 +23,8 @@ import {BlogsQueryRepository} from "./infrastructura/blog.query-repository";
 import {BlogOutputModel} from "./api/models/output/blog.output.model";
 import {SortingPropertiesType} from "../../base/model/sorting-properies.types";
 import {Schema, Types} from "mongoose";
+import {CreateNewPost, CreateNewPostForGivenBlogId} from "../posts/models/input/create-new-post.model";
+import {PostsService} from "../posts/posts.service";
 
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
@@ -33,6 +35,7 @@ export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
 @UseInterceptors(LoggingInterceptor)
 export class BlogsController {
     constructor(private readonly blogsService: BlogsService,
+                private readonly postsService: PostsService,
                 private readonly blogsQueryRepository: BlogsQueryRepository) {
 
     }
@@ -99,5 +102,16 @@ export class BlogsController {
         if (!deleteResult) {
             throw new NotFoundException(`Couldn't delete Blog with ID ${id}`);
         }
+    }
+
+    @HttpCode(201)
+    @Post(':blogId/posts')
+    createPostForBlog(
+        @Param('blogId') blogId: string,
+        @Body(new ValidationPipe({ transform: true })) newPost: CreateNewPostForGivenBlogId,
+    ) {
+        console.log("----")
+        console.log("createPostForBlog newPost = ", newPost)
+        return this.postsService.createPostForBlog(blogId, newPost);
     }
 }
