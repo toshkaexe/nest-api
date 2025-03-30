@@ -86,12 +86,14 @@ export class Pagination {
 export class PaginationWithSearchLoginAndEmailTerm extends Pagination {
   public readonly searchLoginTerm: string | null;
   public readonly searchEmailTerm: string | null;
+  public readonly searchNameTerm: string | null;
 
   constructor(query: ParsedQs, sortProperties: string[]) {
     super(query, sortProperties);
 
     this.searchLoginTerm = query.searchLoginTerm?.toString() || null;
     this.searchEmailTerm = query.searchEmailTerm?.toString() || null;
+    this.searchNameTerm = query.searchNameTerm?.toString() || null;
   }
 }
 

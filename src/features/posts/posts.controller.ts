@@ -6,7 +6,7 @@ import {
     Get,
     HttpCode,
     NotFoundException, Param,
-    Post,
+    Post, Put,
     Query,
     UseInterceptors,
     ValidationPipe
@@ -15,7 +15,7 @@ import {LoggingInterceptor} from "../../common/interceptors/logging.interceptor"
 import {PostsService} from "./posts.service";
 import {CreateBlogModel} from "../blogs/api/models/input/create-blog.model";
 import {BlogsRepository} from "../blogs/infrastructura/blogs.repository";
-import {CreateNewPost} from "./models/input/create-new-post.model";
+import {CreateNewPost, UpdatePostsData} from "./models/input/create-new-post.model";
 import {PaginationOutput, PaginationWithSearchLoginAndEmailTerm} from "../../base/model/pagination.base.model";
 import {BlogOutputModel} from "../blogs/api/models/output/blog.output.model";
 
@@ -81,6 +81,19 @@ export class PostsController {
             throw new NotFoundException(`Post with ID ${id} not found`);
         }
         return post;
+    }
+
+    @HttpCode(204)
+    @Put(':id')
+    async update(
+        @Param('id') id: string,
+        @Body(new ValidationPipe({ transform: true })) updatePostDto: UpdatePostsData,
+    ) {
+        const updateResult = await this.postsService.update(id, updatePostDto);
+
+        if (!updateResult) {
+            throw new NotFoundException(`Couldn't update Post with ID ${id}`);
+        }
     }
 
 

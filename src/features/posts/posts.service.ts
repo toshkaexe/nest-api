@@ -1,7 +1,7 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
 import {BlogsRepository} from "../blogs/infrastructura/blogs.repository";
 import {PostsRepository} from "./infrastructura/posts.repository";
-import {CreateNewPost, CreateNewPostForGivenBlogId} from "./models/input/create-new-post.model";
+import {CreateNewPost, CreateNewPostForGivenBlogId, UpdatePostsData} from "./models/input/create-new-post.model";
 import {OutputPostModel} from "./models/output/posts.output.model";
 import {Posts, PostsDocument} from "./models/domain/posts.entity";
 import {Model} from "mongoose";
@@ -124,6 +124,22 @@ export class PostsService {
     async findOne(id: string): Promise<Posts | null> {
         const newVar = await this.postsRepository.findById(id);
         return newVar;
+    }
+
+    async update(id: string, updateModel: UpdatePostsData): Promise<number> {
+        const post = await this.postsRepository.findById(id);
+        if (!post) {
+            throw new NotFoundException(`Post with ID ${id} not found`);
+        }
+
+        post.title = updateModel.title;
+        post.shortDescription = updateModel.shortDescription;
+        post.content = updateModel.content;
+        post.blogId = updateModel.blogId;
+
+
+//        const updatedPost = await this.postsRepository.updatepost(post);
+        return 100;
     }
 
 }

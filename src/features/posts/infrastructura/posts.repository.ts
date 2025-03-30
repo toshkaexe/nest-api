@@ -13,7 +13,20 @@ export class PostsRepository {
     }
 
 
-    async save(newPost: CreatePostModel): Promise<Posts> {
+    async save(newPost: {
+        createdAt: string;
+        blogName: string;
+        extendedLikesInfo: {
+            likesCount: number;
+            newestLikes: { addedAt: string; login: string; userId: string }[];
+            dislikesCount: number;
+            myStatus: string
+        };
+        shortDescription: string;
+        title: string;
+        blogId: string;
+        content: string
+    }): Promise<Posts> {
         const createdPost = new this.PostModel(newPost);
         return await createdPost.save();
     }

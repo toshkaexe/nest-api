@@ -43,6 +43,12 @@ export class UsersQueryRepository {
             });
         }
 
+        if (pagination.searchNameTerm) {
+            filters.push({
+                name: {$regex: pagination.searchNameTerm, $options: 'i'},
+            });
+        }
+
         const filter: FilterQuery<User> = {};
 
         if (filters.length > 0) {

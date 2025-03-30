@@ -25,6 +25,7 @@ import {SortingPropertiesType} from "../../base/model/sorting-properies.types";
 import {Schema, Types} from "mongoose";
 import {CreateNewPost, CreateNewPostForGivenBlogId} from "../posts/models/input/create-new-post.model";
 import {PostsService} from "../posts/posts.service";
+import {Blog} from "./domain/blog.entity";
 
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
@@ -80,19 +81,18 @@ export class BlogsController {
 
         return blog;
     }
-
-    /*  @HttpCode(204)
+    @HttpCode(204)
     @Put(':id')
     async update(
-      @Param('id') id: string,
-      @Body(new ValidationPipe({ transform: true })) updateBlogDto: UpdateBlogDto,
+        @Param('id') id: string,
+        @Body(new ValidationPipe({ transform: true })) updateBlogDto: Blog,
     ) {
-      const updateResult = await this.blogsService.update(id, updateBlogDto);
+        const updateResult = await this.blogsService.update(id, updateBlogDto);
 
-      if (!updateResult) {
-        throw new NotFoundException(`Couldn't update Blog with ID ${id}`);
-      }
-    }*/
+        if (!updateResult) {
+            throw new NotFoundException(`Couldn't update Blog with ID ${id}`);
+        }
+    }
 
     @HttpCode(204)
     @Delete(':id')
