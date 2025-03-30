@@ -53,7 +53,7 @@ export class BlogsService {
         blog.description = updateModel.description;
         blog.websiteUrl = updateModel.websiteUrl;
 
-        const updatedBlog = await this.blogsRepository.save(blog);
+        const updatedBlog = await this.blogsRepository.update(id, blog);
         return !!updatedBlog;
     }
 }

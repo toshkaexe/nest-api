@@ -37,9 +37,13 @@ export class BlogsRepository {
         return deleteResult.deletedCount > 0;
     }
 
-    async update(id: string, blog: Blog): Promise<boolean> {
-        const updateResult = await this.BlogModel.updateOne({_id: id}, blog);
-        return !updateResult;
+
+    async update(id, blog: Blog): Promise<Blog> {
+        const updatedBlog = await this.BlogModel.findByIdAndUpdate(id, blog, { new: true }).exec();
+        if (!updatedBlog) {
+            throw new NotFoundException(`Blog with ID ${id} not found`);
+        }
+        return updatedBlog;
     }
 
     async deleteAll(): Promise<boolean> {
