@@ -125,7 +125,7 @@ export class BlogsController {
         @Param('blogId') blogId: string,
         @Query() query: any
     ): Promise<PaginationOutput<OutputPostModel>> {
-        const pagination = new PaginationWithSearchLoginAndEmailTerm(query, POSTS_SORTING_PROPERTIES);
+        const pagination = new PaginationWithSearchLoginAndEmailTerm(query, BLOGS_SORTING_PROPERTIES);
         const posts = await this.postsQueryRepository.getPostsForBlog(blogId, pagination);
 
         if (!posts.items.length) {

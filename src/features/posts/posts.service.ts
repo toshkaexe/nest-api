@@ -146,5 +146,10 @@ export class PostsService {
         const updatedPost = await this.postsRepository.update(id, post);
         return 100;
     }
+    async deleteAll(): Promise<boolean> {
+        const result= await this.postsRepository.deleteAll();
+        console.log(result)
+        return result;
+    }
 
 }

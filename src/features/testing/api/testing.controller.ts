@@ -2,12 +2,14 @@ import {Controller, Delete, HttpCode, NotFoundException, Param, UseInterceptors}
 
 import {UsersService} from "../../users/application/user.service";
 import {BlogsService} from "../../blogs/blogs.service";
+import {PostsService} from "../../posts/posts.service";
 
 @Controller('testing/all-data')
 export class TestingController {
     constructor(
         private readonly usersService: UsersService,
-        private readonly blogsService: BlogsService
+        private readonly blogsService: BlogsService,
+        private readonly postsService: PostsService,
     ) {
     }
 
@@ -16,6 +18,7 @@ export class TestingController {
     async delete() {
         await this.usersService.deleteAll();
         await this.blogsService.deleteAll();
+        await this.postsService.deleteAll();
         console.log('deleted all elements')
 
         /*        if (!deletingResult) {
