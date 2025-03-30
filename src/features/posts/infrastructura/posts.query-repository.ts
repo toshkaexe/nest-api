@@ -30,6 +30,12 @@ export class PostsQueryRepository {
             });
         }
 
+        if (pagination.searchLoginTerm) {
+            filters.push({
+                login: {$regex: pagination.searchNameTerm, $options: 'i'},
+            });
+        }
+
         const filter: FilterQuery<Posts> = {};
 
         if (filters.length > 0) {

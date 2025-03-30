@@ -66,7 +66,8 @@ export class PostsController {
 
     @HttpCode(204)
     @Delete(':id')
-    async deletePost(id: string) {
+    async deletePost(@Param('id') id: string) {
+
         const deleteResult = await this.postsService.remove(id);
         if (!deleteResult) {
             throw new NotFoundException(`Couldn't delete Post with ID ${id}`);
