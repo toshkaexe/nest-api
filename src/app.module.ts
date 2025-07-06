@@ -23,6 +23,9 @@ import {PostsController} from "./features/posts/posts.controller";
 import {PostsRepository} from "./features/posts/infrastructura/posts.repository";
 import {Posts, PostsSchema} from "./features/posts/models/domain/posts.entity";
 import {PostsQueryRepository} from "./features/posts/infrastructura/posts.query-repository";
+import {AuthRepository} from "./features/auth/AuthRepository";
+import {JwtService} from './features/jwt/JwtService';
+import {AuthController} from "./features/auth/auth.controller";
 
 const usersProviders: Provider[] = [
     UsersRepository,
@@ -41,6 +44,11 @@ const postsProviders: Provider[] = [
     PostsQueryRepository
 ];
 
+const authProviders: Provider[] = [
+    AuthService,
+    JwtService
+];
+
 @Module({
     imports: [
         MongooseModule.forRoot(
@@ -56,9 +64,14 @@ const postsProviders: Provider[] = [
         ...usersProviders,
         ...blogsProviders,
         ...postsProviders,
-        AuthService,
+        ...authProviders,
     ],
-    controllers: [UsersController, TestingController, WelcomePageController, BlogsController, PostsController],
+    controllers: [UsersController,
+        TestingController,
+        WelcomePageController,
+        BlogsController,
+        PostsController,
+        AuthController],
 })
 export class AppModule {
 }

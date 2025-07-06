@@ -1,6 +1,6 @@
 import {Injectable} from '@nestjs/common';
 import {InjectModel} from '@nestjs/mongoose';
-import {User, UserModelType} from '../domain/user.entity';
+import {User, UserDocument, UserModelType} from '../domain/user.entity';
 
 @Injectable()
 export class UsersRepository {
@@ -15,7 +15,10 @@ export class UsersRepository {
 
     async delete(id: string): Promise<boolean> {
         const deletingResult = await this.UserModel.deleteOne({_id: id});
-        return deletingResult.deletedCount === 1;
+
+        if (deletingResult === 0) {
+            return false; // No document was deleted
+        }
 
 
     }
@@ -23,5 +26,15 @@ export class UsersRepository {
     async deleteAll(): Promise<boolean> {
         const deleteResult = await this.UserModel.deleteMany({});
         return !deleteResult; // Returns true if at least one document was deleted
+    }
+
+    async findByLoginOrEmail(loginOrEmail: string): Promise<UserDocument | null> {
+        const foundUser = await this.UserModel.findOne({
+            $or: [
+                {login: loginOrEmail},
+                {email: loginOrEmail},
+            ],
+        });
+    return foundUser ? foundUser : null;
     }
 }

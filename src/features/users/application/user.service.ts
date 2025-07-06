@@ -1,19 +1,21 @@
 import {Injectable} from '@nestjs/common';
 import {AuthService} from '../../auth/auth.service';
 import {UsersRepository} from '../infrastucture/users.repository';
-
+import {LoginOrEmailModel} from "../../auth/input/create-user.model";
+import bcrypt from "bcrypt";
+import {JwtService} from "../../jwt/JwtService";
 // Для провайдера всегда необходимо применять декоратор @Injectable() и регистрировать в модуле
 @Injectable()
 export class UsersService {
     constructor(
         private readonly usersRepository: UsersRepository,
-        private readonly authService: AuthService,
+        private readonly jwtService: JwtService,
     ) {
     }
 
     async create(login: string, password: string, email: string): Promise<string> {
         const generatedPasswordHash =
-            await this.authService.generatePasswordHash(password);
+            await this.jwtService.generatePasswordHash(password);
 
         const newUser = {
             login: login,
@@ -39,4 +41,15 @@ export class UsersService {
         console.log(result)
          return result;
     }
+
+    async checkCredentials(body: LoginOrEmailModel) {
+        const user = await this.usersRepository.findByLoginOrEmail(body.loginOrEmail)
+        if (!user) return null
+        const compare = await bcrypt.compare(body.password, user.password)
+        if (compare) {
+            return user
+        }
+        return null
+    }
+
 }
