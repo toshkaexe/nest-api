@@ -1,6 +1,6 @@
 import { Body, Controller, HttpCode, Post, ValidationPipe } from '@nestjs/common';
 import { AuthService } from '../auth.service';
-import { LoginPasswordModel } from '../models/LoginPasswordModel';
+import { LoginModel, LoginPasswordEmailModel } from '../models/LoginModel';
 
 @Controller('auth')
 export class AuthController {
@@ -10,9 +10,19 @@ export class AuthController {
   @Post('login')
   async login(
     @Body(new ValidationPipe({ transform: true }))
-    loginPasswordDTO: LoginPasswordModel,
+    loginPasswordDTO: LoginModel,
   ) {
     const { loginOrEmail, password } = loginPasswordDTO;
     return await this.authService.login(loginOrEmail, password);
+  }
+
+  @HttpCode(204)
+  @Post('registration')
+  async registration(
+    @Body(new ValidationPipe({ transform: true }))
+    loginPasswordEmailDTO: LoginPasswordEmailModel,
+  ) {
+    const { login, email, password } = loginPasswordEmailDTO;
+    await this.authService.registration(login, email, password);
   }
 }
