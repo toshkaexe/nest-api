@@ -1,7 +1,7 @@
 import {Controller, Delete, HttpCode, NotFoundException, Param, UseInterceptors} from "@nestjs/common";
 
 import {UsersService} from "../../users/application/user.service";
-import {BlogsService} from "../../blogs/blogs.service";
+import {BlogsService} from "../../blogs/service/blogs.service";
 import {PostsService} from "../../posts/posts.service";
 
 @Controller('testing/all-data')

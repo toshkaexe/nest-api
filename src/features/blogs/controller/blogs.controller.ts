@@ -12,23 +12,23 @@ import {
     Query, UseInterceptors,
     ValidationPipe,
 } from '@nestjs/common';
-import {BlogsService} from './blogs.service';
-import {CreateBlogModel} from './api/models/input/create-blog.model';
+import {BlogsService} from '../service/blogs.service';
+import {CreateBlogModel} from '../api/models/input/create-blog.model';
 import {ApiTags} from "@nestjs/swagger";
-import {LoggingInterceptor} from "../../common/interceptors/logging.interceptor";
-import {PaginationOutput, PaginationWithSearchLoginAndEmailTerm} from "../../base/model/pagination.base.model";
-import {UserOutputModel} from "../users/api/models/output/user-output.model";
-import {USERS_SORTING_PROPERTIES} from "../users/api/users.controller";
-import {BlogsQueryRepository} from "./infrastructura/blog.query-repository";
-import {BlogOutputModel} from "./api/models/output/blog.output.model";
-import {SortingPropertiesType} from "../../base/model/sorting-properies.types";
+import {LoggingInterceptor} from "../../../common/interceptors/logging.interceptor";
+import {PaginationOutput, PaginationWithSearchLoginAndEmailTerm} from "../../../base/model/pagination.base.model";
+import {UserOutputModel} from "../../users/api/models/output/user-output.model";
+import {USERS_SORTING_PROPERTIES} from "../../users/api/users.controller";
+import {BlogsQueryRepository} from "../infrastructure/blog.query-repository";
+import {BlogOutputModel} from "../api/models/output/blog.output.model";
+import {SortingPropertiesType} from "../../../base/model/sorting-properies.types";
 import {Schema, Types} from "mongoose";
-import {CreateNewPost, CreateNewPostForGivenBlogId} from "../posts/models/input/create-new-post.model";
-import {PostsService} from "../posts/posts.service";
-import {Blog} from "./domain/blog.entity";
-import {OutputPostModel} from "../posts/models/output/posts.output.model";
-import {POSTS_SORTING_PROPERTIES} from "../posts/posts.controller";
-import {PostsQueryRepository} from "../posts/infrastructura/posts.query-repository";
+import {CreateNewPost, CreateNewPostForGivenBlogId} from "../../posts/models/input/create-new-post.model";
+import {PostsService} from "../../posts/posts.service";
+import {Blog} from "../domain/blog.entity";
+import {OutputPostModel} from "../../posts/models/output/posts.output.model";
+import {POSTS_SORTING_PROPERTIES} from "../../posts/posts.controller";
+import {PostsQueryRepository} from "../../posts/infrastructure/posts.query-repository";
 
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =

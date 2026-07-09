@@ -26,6 +26,17 @@ export class UsersQueryRepository {
         return UserOutputModelMapper(user);
     }
 
+    async findByLoginOrEmail(loginOrEmail: string): Promise<any | null> {
+        const user = await this.userModel.findOne({
+            $or: [
+                { login: loginOrEmail },
+                { email: loginOrEmail }
+            ]
+        });
+
+        return user;
+    }
+
     async getAll(
         pagination: PaginationWithSearchLoginAndEmailTerm,
     ): Promise<PaginationOutput<UserOutputModel>> {

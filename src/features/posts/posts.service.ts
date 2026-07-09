@@ -1,6 +1,6 @@
 import {Injectable, NotFoundException} from "@nestjs/common";
-import {BlogsRepository} from "../blogs/infrastructura/blogs.repository";
-import {PostsRepository} from "./infrastructura/posts.repository";
+import {BlogsRepository} from "../blogs/infrastructure/blogs.repository";
+import {PostsRepository} from "./infrastructure/posts.repository";
 import {CreateNewPost, CreateNewPostForGivenBlogId, UpdatePostsData} from "./models/input/create-new-post.model";
 import {OutputPostModel} from "./models/output/posts.output.model";
 import {Posts, PostsDocument} from "./models/domain/posts.entity";

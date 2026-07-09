@@ -1,9 +1,9 @@
-import {CreateBlogModel} from "./api/models/input/create-blog.model";
+import {CreateBlogModel} from "../api/models/input/create-blog.model";
 import {Injectable, NotFoundException} from "@nestjs/common";
-import {BlogsRepository} from "./infrastructura/blogs.repository";
-import {Blog} from "./domain/blog.entity";
-import {BlogOutputModel, BlogOutputModelMapper} from "./api/models/output/blog.output.model";
-import {UpdatePostsData} from "../posts/models/input/create-new-post.model";
+import {BlogsRepository} from "../infrastructure/blogs.repository";
+import {Blog} from "../domain/blog.entity";
+import {BlogOutputModel, BlogOutputModelMapper} from "../api/models/output/blog.output.model";
+import {UpdatePostsData} from "../../posts/models/input/create-new-post.model";
 
 @Injectable()
 export class BlogsService {

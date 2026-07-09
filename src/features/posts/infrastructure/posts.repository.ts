@@ -1,4 +1,4 @@
-import {BlogsRepository} from "../../blogs/infrastructura/blogs.repository";
+import {BlogsRepository} from "../../blogs/infrastructure/blogs.repository";
 import {Posts, PostsDocument, PostsModelType} from "../models/domain/posts.entity";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model, Types} from "mongoose";
