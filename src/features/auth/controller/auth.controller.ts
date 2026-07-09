@@ -1,6 +1,7 @@
-import { Body, Controller, HttpCode, Post, ValidationPipe } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, UseGuards, Request, ValidationPipe } from '@nestjs/common';
 import { AuthService } from '../auth.service';
 import { LoginModel, LoginPasswordEmailModel } from '../models/LoginModel';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -24,5 +25,13 @@ export class AuthController {
   ) {
     const { login, email, password } = loginPasswordEmailDTO;
     await this.authService.registration(login, email, password);
+  }
+
+  @HttpCode(200)
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async getMe(@Request() req: any) {
+    const userId = req.user.userId;
+    return await this.authService.getMe(userId);
   }
 }

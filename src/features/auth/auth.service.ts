@@ -82,4 +82,21 @@ export class AuthService {
 
         // TODO: Send confirmation email
     }
+
+    async getMe(userId: string): Promise<{ email: string; login: string; userId: string }> {
+        console.log('=== Get current user ===');
+        console.log('userId:', userId);
+
+        const user = await this.usersQueryRepository.getById(userId);
+
+        if (!user) {
+            throw new UnauthorizedException('User not found');
+        }
+
+        return {
+            email: user.email,
+            login: user.login,
+            userId: user.id,
+        };
+    }
 }
