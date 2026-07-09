@@ -53,7 +53,7 @@ const postsProviders: Provider[] = [
         MongooseModule.forFeature([{name: Posts.name, schema: PostsSchema}]),
         JwtModule.register({
             secret: AppSettings.ACCESS_JWT_SECRET,
-            signOptions: { expiresIn: '5h' },
+            signOptions: { expiresIn: '10m' },
         }),
 
     ],
