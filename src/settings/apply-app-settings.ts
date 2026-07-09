@@ -71,25 +71,20 @@ const setAppPipes = (app: INestApplication) => {
             stopAtFirstError: true,
             // Перехватываем ошибку, кастомизируем её и выкидываем 400 с собранными данными
             exceptionFactory: (errors) => {
-                const customErrors = [];
-                console.log(errors);
+                const errorsMessages: Array<{ message: string; field: string }> = [];
 
                 errors.forEach((e) => {
-                    /*         const constraintKeys = Object.keys(e.constraints);
-
-                    constraintKeys.forEach((cKey) => {
-                      if (e.constraints) {
-                        const msg = e.constraints[cKey];
-                      }
-
-                      customErrors.push({ key: e.property, message: msg });
-                    });*/
+                    if (e.constraints) {
+                        const constraintKeys = Object.keys(e.constraints);
+                        constraintKeys.forEach((cKey) => {
+                            const msg = e.constraints![cKey];
+                            errorsMessages.push({ message: msg, field: e.property });
+                        });
+                    }
                 });
 
-                //customErrors = [{key: "email", message: "Bad length"}, {key: "name", message: "Bad name"}]
-
                 // Error 400
-                throw new BadRequestException(customErrors);
+                throw new BadRequestException({ errorsMessages });
             },
         }),
     );

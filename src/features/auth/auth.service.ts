@@ -21,39 +21,25 @@ export class AuthService {
     }
 
     async  login(loginOrEmail: string, password: string): Promise<{ accessToken: string }> {
-        console.log('=== Login/Register attempt ===');
+        console.log('=== Login attempt ===');
         console.log('loginOrEmail:', loginOrEmail);
 
-        let user = await this.usersQueryRepository.findByLoginOrEmail(loginOrEmail);
+        const user = await this.usersQueryRepository.findByLoginOrEmail(loginOrEmail);
         console.log('User found:', user ? 'YES' : 'NO');
 
         if (!user) {
-            console.log('User not found, creating new user...');
-            // Если пользователь не найден, создаем нового
-            const hashedPassword = await this.generatePasswordHash(password);
+            console.log('User not found');
+            throw new UnauthorizedException('Invalid credentials');
+        }
 
-            const newUser = {
-                login: loginOrEmail.includes('@') ? loginOrEmail.split('@')[0] : loginOrEmail,
-                password: hashedPassword,
-                email: loginOrEmail.includes('@') ? loginOrEmail : `${loginOrEmail}@example.com`,
-                createdAt: new Date(),
-            };
+        // Валидация пароля
+        console.log('Comparing passwords...');
+        const isPasswordValid = await bcrypt.compare(password, user.password);
+        console.log('Password valid:', isPasswordValid);
 
-            const createdUserId = await this.usersRepository.create(newUser);
-            console.log('User created with ID:', createdUserId);
-
-            // Получаем только что созданного пользователя
-            user = await this.usersQueryRepository.findByLoginOrEmail(loginOrEmail);
-        } else {
-            // Валидация пароля для существующего пользователя
-            console.log('Comparing passwords...');
-            const isPasswordValid = await bcrypt.compare(password, user.password);
-            console.log('Password valid:', isPasswordValid);
-
-            if (!isPasswordValid) {
-                console.log('Invalid password');
-                throw new UnauthorizedException('Invalid credentials');
-            }
+        if (!isPasswordValid) {
+            console.log('Invalid password');
+            throw new UnauthorizedException('Invalid credentials');
         }
 
         const payload = { userId: user._id || user.id, login: user.login };
