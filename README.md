@@ -2,6 +2,39 @@
 
 REST API for a blogging platform built with NestJS, MongoDB, and JWT authentication.
 
+## Project Overview (STAR)
+
+### Situation
+
+Developed a backend REST API for a blogging platform as part of a backend engineering course. The platform supports blogs, posts, comments, a like/dislike system, and full JWT-based authentication. The project was validated against an automated test suite that runs integration tests against a live deployed server.
+
+### Task
+
+Build a production-style REST API with the following requirements:
+- CRUD operations for blogs, posts, and comments
+- Like/dislike system with per-user status tracking and aggregated counters
+- JWT authorization (access + refresh tokens) with token rotation
+- Pagination, sorting, and input validation across all endpoints
+- CQRS architecture (Command Query Responsibility Segregation) to separate write and read concerns
+
+### Action
+
+- Chose **NestJS + MongoDB (Mongoose)** for structured architecture and native CQRS support via `@nestjs/cqrs`
+- Separated write logic (use-cases dispatched through `CommandBus`) from read logic (dedicated query repositories) to improve testability and maintainability
+- Implemented the like/dislike system using a **separate collection** with a compound unique index `{entityId, userId}` to guarantee idempotency and prevent duplicate votes
+- Used **atomic `$inc` operations** on counters to avoid race conditions when multiple users like simultaneously
+- Built an `OptionalJwtAuthGuard` to support mixed endpoints where unauthorized users see `myStatus: "None"` while authorized users see their actual like status
+- Solved a key architectural challenge: list endpoints (`GET /posts`, `GET /blogs/:id/posts`) initially returned zero counts because the mapper only read embedded document fields. Refactored to aggregate real-time like data from the `PostLike` collection at the query-repository level
+- Applied input validation with `class-validator` + `class-transformer`, including whitespace trimming to reject empty-looking inputs
+
+### Result
+
+- All automated integration tests pass across every module (users, auth, blogs, posts, comments, likes)
+- Gained hands-on experience with CQRS pattern, understanding when command/query separation adds value vs. overhead
+- Learned the trade-offs between storing aggregated data in documents (fast reads, stale data risk) vs. computing on the fly (always accurate, higher read cost)
+- In a production setting, would introduce Redis caching for like counters and event-driven updates instead of synchronous `$inc` to reduce database load at scale
+
+
 ## Features
 
 - **Users** — CRUD operations with Basic Auth protection, pagination, search by login/email
