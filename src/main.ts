@@ -4,10 +4,12 @@ import { AppSettings } from './settings/appSettings';
 import { applyAppSettings } from './settings/apply-app-settings';
 import { Logger } from '@nestjs/common';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const logger = new Logger('Bootstrap'); // Create a logger instance
+  const logger = new Logger('Bootstrap');
   const app = await NestFactory.create(AppModule);
+  app.use(cookieParser());
   app.useGlobalInterceptors(new LoggingInterceptor());
 
   applyAppSettings(app);

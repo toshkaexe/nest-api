@@ -25,7 +25,23 @@ import { PostsQueryRepository } from './features/posts/repository/posts.query-re
 import { AuthController } from './features/auth/controller/auth.controller';
 import { EmailService } from './features/adapter/EmailService';
 import { JwtModule } from '@nestjs/jwt';
-import { ThrottlerModule } from '@nestjs/throttler';
+import { CommentsController } from './features/comments/controller/comments.controller';
+import { CommentsService } from './features/comments/service/comments.service';
+import { CommentsRepository } from './features/comments/repository/comments.repository';
+import { CommentsQueryRepository } from './features/comments/repository/comments.query-repository';
+import {
+  Comment,
+  CommentSchema,
+} from './features/comments/domain/comment.entity';
+import {
+  CommentLike,
+  CommentLikeSchema,
+} from './features/comments/domain/comment-like.entity';
+import { CqrsModule } from '@nestjs/cqrs';
+import { SetLikeStatusUseCase } from './features/comments/use-cases/set-like-status.use-case';
+import { CreateCommentUseCase } from './features/comments/use-cases/create-comment.use-case';
+import { UpdateCommentUseCase } from './features/comments/use-cases/update-comment.use-case';
+import { DeleteCommentUseCase } from './features/comments/use-cases/delete-comment.use-case';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -44,30 +60,40 @@ const postsProviders: Provider[] = [
   PostsQueryRepository,
 ];
 
+const commentsProviders: Provider[] = [
+  CommentsRepository,
+  CommentsService,
+  CommentsQueryRepository,
+  SetLikeStatusUseCase,
+  CreateCommentUseCase,
+  UpdateCommentUseCase,
+  DeleteCommentUseCase,
+];
+
 @Module({
   imports: [
-    ThrottlerModule.forRoot([
-      {
-        ttl: 10000,
-        limit: 5,
-      },
-    ]),
     MongooseModule.forRoot(
       `${AppSettings.MONGO_URI_CLOUD}/${AppSettings.DB_NANE_NEST}`,
     ),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
     MongooseModule.forFeature([{ name: Posts.name, schema: PostsSchema }]),
+    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
+    MongooseModule.forFeature([
+      { name: CommentLike.name, schema: CommentLikeSchema },
+    ]),
     JwtModule.register({
       secret: AppSettings.ACCESS_JWT_SECRET,
       signOptions: { expiresIn: '10m' },
     }),
+    CqrsModule.forRoot(),
   ],
   providers: [
     AppService,
     ...usersProviders,
     ...blogsProviders,
     ...postsProviders,
+    ...commentsProviders,
     AuthService,
     EmailService,
   ],
@@ -78,6 +104,7 @@ const postsProviders: Provider[] = [
     BlogsController,
     PostsController,
     AuthController,
+    CommentsController,
   ],
 })
 export class AppModule {}

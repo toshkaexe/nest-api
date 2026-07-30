@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 import { AppModule } from '../../src/app.module';
 import { applyAppSettings } from '../../src/settings/apply-app-settings';
 import { EmailService } from '../../src/features/adapter/EmailService';
@@ -19,6 +20,7 @@ export async function createTestApp(): Promise<INestApplication> {
     .compile();
 
   const app = moduleFixture.createNestApplication();
+  app.use(cookieParser());
   applyAppSettings(app);
   await app.init();
 

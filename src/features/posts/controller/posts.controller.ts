@@ -10,6 +10,8 @@ import {
   Post,
   Put,
   Query,
+  Request,
+  UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
@@ -28,6 +30,13 @@ import { OutputPostModel } from '../dto/output/posts.output.model';
 import { SortingPropertiesType } from '../../../base/model/sorting-properies.types';
 import { PostsQueryRepository } from '../repository/posts.query-repository';
 import { Posts } from '../domain/posts.entity';
+import { CommandBus } from '@nestjs/cqrs';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { OptionalJwtAuthGuard } from '../../auth/guards/optional-jwt-auth.guard';
+import { CreateCommentModel } from '../../comments/dto/input/create-comment.model';
+import { CreateCommentCommand } from '../../comments/use-cases/create-comment.use-case';
+import { CommentsQueryRepository } from '../../comments/repository/comments.query-repository';
+import { CommentOutputModel } from '../../comments/dto/output/comment.output.model';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<OutputPostModel> =
   ['title'];
@@ -39,6 +48,8 @@ export class PostsController {
   constructor(
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly commandBus: CommandBus,
+    private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
   @HttpCode(201)
@@ -96,5 +107,60 @@ export class PostsController {
     if (!updateResult) {
       throw new NotFoundException(`Couldn't update Post with ID ${id}`);
     }
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(201)
+  @Post(':postId/comments')
+  async createComment(
+    @Param('postId') postId: string,
+    @Body(new ValidationPipe({ transform: true })) body: CreateCommentModel,
+    @Request() req: any,
+  ): Promise<CommentOutputModel> {
+    const post = await this.postsService.findOne(postId);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${postId} not found`);
+    }
+
+    const commentId = await this.commandBus.execute(
+      new CreateCommentCommand(
+        postId,
+        body.content,
+        req.user.userId,
+        req.user.login,
+      ),
+    );
+
+    const comment = await this.commentsQueryRepository.getById(
+      commentId,
+      req.user.userId,
+    );
+    return comment!;
+  }
+
+  @UseGuards(OptionalJwtAuthGuard)
+  @HttpCode(200)
+  @Get(':postId/comments')
+  async getComments(
+    @Param('postId') postId: string,
+    @Query() query: any,
+    @Request() req: any,
+  ): Promise<PaginationOutput<CommentOutputModel>> {
+    const post = await this.postsService.findOne(postId);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${postId} not found`);
+    }
+
+    const userId = req.user?.userId || null;
+    const pagination = new PaginationWithSearchLoginAndEmailTerm(
+      query,
+      POSTS_SORTING_PROPERTIES,
+    );
+
+    return this.commentsQueryRepository.getCommentsForPost(
+      postId,
+      pagination,
+      userId,
+    );
   }
 }

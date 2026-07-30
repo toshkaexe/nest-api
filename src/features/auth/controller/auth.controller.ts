@@ -4,11 +4,12 @@ import {
   Get,
   HttpCode,
   Post,
+  Res,
   UseGuards,
   Request,
   ValidationPipe,
 } from '@nestjs/common';
-import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
+import { Response } from 'express';
 import { AuthService } from '../service/auth.service';
 import {
   EmailModel,
@@ -28,9 +29,17 @@ export class AuthController {
   async login(
     @Body(new ValidationPipe({ transform: true }))
     loginPasswordDTO: LoginModel,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const { loginOrEmail, password } = loginPasswordDTO;
-    return await this.authService.login(loginOrEmail, password);
+    const result = await this.authService.login(loginOrEmail, password);
+
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return { accessToken: result.accessToken };
   }
 
   @HttpCode(204)
@@ -51,8 +60,6 @@ export class AuthController {
     return await this.authService.getMe(userId);
   }
 
-  @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(204)
   @Post('registration-confirmation')
   async registrationConfirmation(
@@ -62,8 +69,6 @@ export class AuthController {
     await this.authService.confirmRegistration(body.code);
   }
 
-  @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(204)
   @Post('registration-email-resending')
   async registrationEmailResending(
@@ -73,8 +78,6 @@ export class AuthController {
     await this.authService.resendConfirmationEmail(body.email);
   }
 
-  @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(204)
   @Post('password-recovery')
   async passwordRecovery(
@@ -84,8 +87,6 @@ export class AuthController {
     await this.authService.passwordRecovery(body.email);
   }
 
-  @UseGuards(ThrottlerGuard)
-  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(204)
   @Post('new-password')
   async newPassword(
@@ -96,5 +97,33 @@ export class AuthController {
       body.newPassword,
       body.recoveryCode,
     );
+  }
+
+  @HttpCode(200)
+  @Post('refresh-token')
+  async refreshToken(
+    @Request() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = req.cookies?.refreshToken;
+    const result = await this.authService.refreshTokens(token);
+
+    res.cookie('refreshToken', result.refreshToken, {
+      httpOnly: true,
+      secure: true,
+    });
+
+    return { accessToken: result.accessToken };
+  }
+
+  @HttpCode(204)
+  @Post('logout')
+  async logout(
+    @Request() req: any,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const token = req.cookies?.refreshToken;
+    await this.authService.logout(token);
+    res.clearCookie('refreshToken');
   }
 }

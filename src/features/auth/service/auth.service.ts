@@ -10,6 +10,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersQueryRepository } from '../../users/repository/users.query-repository';
 import { UsersRepository } from '../../users/repository/users.repository';
 import { EmailService } from '../../adapter/EmailService';
+import { AppSettings } from '../../../settings/appSettings';
 
 @Injectable()
 export class AuthService {
@@ -27,33 +28,25 @@ export class AuthService {
   async login(
     loginOrEmail: string,
     password: string,
-  ): Promise<{ accessToken: string }> {
-    console.log('=== Login attempt ===');
-    console.log('loginOrEmail:', loginOrEmail);
-
+  ): Promise<{ accessToken: string; refreshToken: string }> {
     const user =
       await this.usersQueryRepository.findByLoginOrEmail(loginOrEmail);
-    console.log('User found:', user ? 'YES' : 'NO');
 
     if (!user) {
-      console.log('User not found');
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Проверяем пароль
-    console.log('Comparing passwords...');
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    console.log('Password valid:', isPasswordValid);
 
     if (!isPasswordValid) {
-      console.log('Invalid password');
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = { userId: user._id || user.id, login: user.login };
-    const accessToken = this.jwtService.sign(payload);
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '10m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '10h' });
 
-    return { accessToken };
+    return { accessToken, refreshToken };
   }
 
   async registration(
@@ -250,5 +243,45 @@ export class AuthService {
       user._id.toString(),
       passwordHash,
     );
+  }
+
+  async refreshTokens(
+    token: string,
+  ): Promise<{ accessToken: string; refreshToken: string }> {
+    if (!token) {
+      throw new UnauthorizedException('No refresh token');
+    }
+
+    try {
+      const payload = this.jwtService.verify(token, {
+        secret: AppSettings.ACCESS_JWT_SECRET,
+      });
+
+      const newPayload = { userId: payload.userId, login: payload.login };
+      const accessToken = this.jwtService.sign(newPayload, {
+        expiresIn: '10m',
+      });
+      const refreshToken = this.jwtService.sign(newPayload, {
+        expiresIn: '10h',
+      });
+
+      return { accessToken, refreshToken };
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+  }
+
+  async logout(token: string): Promise<void> {
+    if (!token) {
+      throw new UnauthorizedException('No refresh token');
+    }
+
+    try {
+      this.jwtService.verify(token, {
+        secret: AppSettings.ACCESS_JWT_SECRET,
+      });
+    } catch {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
   }
 }
