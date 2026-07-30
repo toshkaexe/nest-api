@@ -18,14 +18,10 @@ import {
   RegistrationConfirmationCodeModel,
 } from '../dto/login.model';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { EmailService } from '../../adapter/EmailService';
 
 @Controller('auth')
 export class AuthController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly emailService: EmailService,
-  ) {}
+  constructor(private readonly authService: AuthService) {}
 
   @HttpCode(200)
   @Post('login')
@@ -66,13 +62,15 @@ export class AuthController {
     await this.authService.confirmRegistration(body.code);
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
   @HttpCode(204)
   @Post('registration-email-resending')
-  async registrationEmailResendong(
+  async registrationEmailResending(
     @Body(new ValidationPipe({ transform: true }))
-    email: EmailModel,
+    body: EmailModel,
   ) {
-    await this.emailService.send(email);
+    await this.authService.resendConfirmationEmail(body.email);
   }
 
   @UseGuards(ThrottlerGuard)

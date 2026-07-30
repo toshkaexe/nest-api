@@ -34,6 +34,18 @@ export class UsersRepository {
     return result.matchedCount === 1;
   }
 
+  async updateConfirmationCode(
+    userId: string,
+    confirmationCode: string,
+    expiresAt: Date,
+  ): Promise<boolean> {
+    const result = await this.UserModel.updateOne(
+      { _id: userId },
+      { $set: { confirmationCode, confirmationCodeExpiresAt: expiresAt } },
+    );
+    return result.matchedCount === 1;
+  }
+
   async findByConfirmationCode(code: string) {
     return this.UserModel.findOne({ confirmationCode: code });
   }

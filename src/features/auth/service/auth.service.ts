@@ -101,7 +101,7 @@ export class AuthService {
     };
 
     await this.usersRepository.create(newUser);
-    await this.emailService.sendConfirmationCode(email, confirmationCode);
+    await this.emailService.sendRegistrationConfirmationLink(email, confirmationCode);
   }
 
   async getMe(
@@ -121,6 +121,37 @@ export class AuthService {
       login: user.login,
       userId: user.id,
     };
+  }
+
+  async resendConfirmationEmail(email: string): Promise<void> {
+    const user = await this.usersQueryRepository.findByLoginOrEmail(email);
+
+    if (!user) {
+      throw new BadRequestException({
+        errorsMessages: [
+          { message: 'User with this email does not exist', field: 'email' },
+        ],
+      });
+    }
+
+    if (user.isConfirmed) {
+      throw new BadRequestException({
+        errorsMessages: [
+          { message: 'Email is already confirmed', field: 'email' },
+        ],
+      });
+    }
+
+    const newConfirmationCode = uuidv4();
+    const newExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
+    await this.usersRepository.updateConfirmationCode(
+      user._id.toString(),
+      newConfirmationCode,
+      newExpiresAt,
+    );
+
+    await this.emailService.sendRegistrationConfirmationLink(email, newConfirmationCode);
   }
 
   async confirmRegistration(code: string): Promise<void> {

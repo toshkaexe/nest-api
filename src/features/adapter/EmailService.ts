@@ -31,7 +31,7 @@ export class EmailService {
     });
   }
 
-  async sendConfirmationCode(
+  async sendRegistrationConfirmationLink(
     email: string,
     confirmationCode: string,
   ): Promise<void> {
@@ -41,7 +41,8 @@ export class EmailService {
       subject: 'Registration Confirmation',
       html: `
                 <h1>Registration Confirmation</h1>
-                <p>Your confirmation code: <strong>${confirmationCode}</strong></p>
+                <p>To confirm your registration, please click the link below:</p>
+                <a href="https://some-front.com/confirm-registration?code=${confirmationCode}">Confirm Registration</a>
                 <p>This code will expire in 1 hour.</p>
             `,
     });
