@@ -14,13 +14,13 @@ export class BlogsRepository {
   }
 
   async getBlogById(id: string): Promise<Blog | null> {
-    const blog = await this.BlogModel.findOne({ _id: id });
-
-    if (!blog) {
-      throw new NotFoundException(`Blog with ID ${id} not found`);
+    try {
+      const blog = await this.BlogModel.findOne({ _id: id });
+      return blog;
+    } catch (error) {
+      // Invalid ObjectId format returns null instead of throwing
+      return null;
     }
-
-    return blog;
   }
 
   async getAll(): Promise<Blog[]> {

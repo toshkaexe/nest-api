@@ -9,9 +9,11 @@ import {
   Post,
   Put,
   Query,
+  UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
+import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
 import { BlogsService } from '../service/blogs.service';
 import { CreateBlogModel } from '../dto/input/create-blog.model';
 import { ApiTags } from '@nestjs/swagger';
@@ -43,6 +45,7 @@ export class BlogsController {
     private readonly postsQueryRepository: PostsQueryRepository,
   ) {}
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(201)
   @Post()
   create(
@@ -83,6 +86,7 @@ export class BlogsController {
 
     return blog;
   }
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   @Put(':id')
   async update(
@@ -97,6 +101,7 @@ export class BlogsController {
     }
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   @Delete(':blogId')
   async remove(@Param('blogId') blogId: string) {
@@ -106,6 +111,7 @@ export class BlogsController {
     }
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(201)
   @Post(':blogId/posts')
   createPostForBlog(

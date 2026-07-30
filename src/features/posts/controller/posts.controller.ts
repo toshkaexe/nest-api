@@ -33,6 +33,7 @@ import { Posts } from '../domain/posts.entity';
 import { CommandBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../../auth/guards/optional-jwt-auth.guard';
+import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
 import { CreateCommentModel } from '../../comments/dto/input/create-comment.model';
 import { CreateCommentCommand } from '../../comments/use-cases/create-comment.use-case';
 import { CommentsQueryRepository } from '../../comments/repository/comments.query-repository';
@@ -53,6 +54,7 @@ export class PostsController {
     private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(201)
   @Post()
   create(
@@ -78,6 +80,7 @@ export class PostsController {
     return posts;
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   @Delete(':id')
   async deletePost(@Param('id') id: string) {
@@ -86,16 +89,19 @@ export class PostsController {
       throw new NotFoundException(`Couldn't delete Post with ID ${id}`);
     }
   }
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(200)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<Posts> {
-    const post = await this.postsService.findOne(id);
+  async findOne(@Param('id') id: string, @Request() req: any): Promise<OutputPostModel> {
+    const userId = req.user?.userId || null;
+    const post = await this.postsQueryRepository.getById(id, userId);
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
     return post;
   }
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   @Put(':id')
   async update(

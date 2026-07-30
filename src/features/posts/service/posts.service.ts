@@ -53,13 +53,7 @@ export class PostsService {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: 'None',
-        newestLikes: [
-          {
-            addedAt: publishedAt,
-            userId: 'string',
-            login: 'string',
-          },
-        ],
+        newestLikes: [],
       },
     };
 
@@ -111,13 +105,7 @@ export class PostsService {
         likesCount: 0,
         dislikesCount: 0,
         myStatus: 'None',
-        newestLikes: [
-          {
-            addedAt: publishedAt,
-            userId: 'string',
-            login: 'string',
-          },
-        ],
+        newestLikes: [],
       },
     };
 

@@ -7,11 +7,14 @@ import {
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/model/pagination.base.model';
 import { OutputPostModel, postMapper } from '../dto/output/posts.output.model';
+import { PostLikeRepository } from './post-like.repository';
+import { LikeStatus } from '../dto/input/like-status.model';
 
 @Injectable()
 export class PostsQueryRepository {
   constructor(
     @InjectModel(Posts.name) private postModel: Model<PostsDocument>,
+    private postLikeRepository: PostLikeRepository,
   ) {}
 
   async getAll(
@@ -65,5 +68,41 @@ export class PostsQueryRepository {
       pagination.pageSize,
       totalCount,
     );
+  }
+
+  async getById(postId: string, userId: string | null = null): Promise<OutputPostModel | null> {
+    const post = await this.postModel.findById(postId).exec();
+
+    if (!post) {
+      return null;
+    }
+
+    const likesCount = await this.postLikeRepository.getLikesCount(postId);
+    const dislikesCount = await this.postLikeRepository.getDislikesCount(postId);
+    const newestLikes = await this.postLikeRepository.getNewestLikes(postId, 3);
+
+    let myStatus = LikeStatus.None;
+    if (userId) {
+      const userLike = await this.postLikeRepository.findUserLikeForPost(postId, userId);
+      if (userLike) {
+        myStatus = userLike.status;
+      }
+    }
+
+    const mappedPost = postMapper(post);
+
+    return {
+      ...mappedPost,
+      extendedLikesInfo: {
+        likesCount,
+        dislikesCount,
+        myStatus,
+        newestLikes: newestLikes.map(like => ({
+          addedAt: like.addedAt.toISOString(),
+          userId: like.userId,
+          login: like.login,
+        })),
+      },
+    };
   }
 }
