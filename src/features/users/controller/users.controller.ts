@@ -9,8 +9,11 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
   UseInterceptors,
+  ValidationPipe,
 } from '@nestjs/common';
+import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
 
 import { UserOutputModel } from '../dto/output/user-output.model';
 import { UsersService } from '../service/users.service';
@@ -37,6 +40,7 @@ export class UsersController {
     private readonly usersQueryRepository: UsersQueryRepository,
   ) {}
 
+  @UseGuards(BasicAuthGuard)
   @HttpCode(200)
   @Get()
   async getAll(
@@ -56,9 +60,11 @@ export class UsersController {
     return users;
   }
 
+  @UseGuards(BasicAuthGuard)
   @Post()
   async create(
-    @Body() createModel: UserCreateModel,
+    @Body(new ValidationPipe({ transform: true }))
+    createModel: UserCreateModel,
   ): Promise<UserOutputModel | null> {
     console.log('posts');
     const { login, password, email } = createModel;
@@ -91,6 +97,7 @@ export class UsersController {
   // :id в декораторе говорит nest о том что это параметр
   // Можно прочитать с помощью @Param("id") и передать в property такое же название параметра
   // Если property не указать, то вернется объект @Param()
+  @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   @Delete(':id')
   async delete(@Param('id') id: string) {

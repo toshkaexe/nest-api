@@ -67,7 +67,6 @@ const setAppPipes = (app: INestApplication) => {
     new ValidationPipe({
       // Для работы трансформации входящих данных
       transform: true,
-      // Выдавать первую ошибку для каждого поля
       stopAtFirstError: true,
       // Перехватываем ошибку, кастомизируем её и выкидываем 400 с собранными данными
       exceptionFactory: (errors) => {

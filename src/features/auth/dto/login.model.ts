@@ -21,11 +21,13 @@ export class LoginPasswordEmailModel {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
+  @MaxLength(10)
   login: string;
 
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
+  @MaxLength(20)
   password: string;
 
   @IsString()

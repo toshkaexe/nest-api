@@ -17,13 +17,16 @@ export class HttpExceptionFilter implements ExceptionFilter<HttpException> {
     const status = exception.getStatus();
 
     if (status === HttpStatus.BAD_REQUEST) {
+      const responseBody: any = exception.getResponse();
+
+      if (responseBody.errorsMessages) {
+        response.status(status).json(responseBody);
+        return;
+      }
+
       const errorsResponse: { errorsMessages: string[] } = {
         errorsMessages: [],
       };
-
-      const responseBody: any = exception.getResponse();
-
-      console.log(responseBody.message);
 
       if (Array.isArray(responseBody.message)) {
         responseBody.message.forEach((e: string) =>
