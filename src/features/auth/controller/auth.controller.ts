@@ -1,10 +1,20 @@
-import { Body, Controller, Get, HttpCode, Post, UseGuards, Request, ValidationPipe } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  Post,
+  UseGuards,
+  Request,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from '../service/auth.service';
 import {
   EmailModel,
   LoginModel,
   LoginPasswordEmailModel,
+  NewPasswordModel,
 } from '../dto/login.model';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { EmailService } from '../../adapter/EmailService';
@@ -62,5 +72,19 @@ export class AuthController {
     body: EmailModel,
   ) {
     await this.authService.passwordRecovery(body.email);
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  @HttpCode(204)
+  @Post('new-password')
+  async newPassword(
+    @Body(new ValidationPipe({ transform: true }))
+    body: NewPasswordModel,
+  ) {
+    await this.authService.confirmNewPassword(
+      body.newPassword,
+      body.recoveryCode,
+    );
   }
 }

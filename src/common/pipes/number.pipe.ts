@@ -1,21 +1,15 @@
-import {
-    PipeTransform,
-    Injectable,
-    ArgumentMetadata,
-    BadRequestException,
-} from '@nestjs/common';
+import { PipeTransform, Injectable, BadRequestException } from '@nestjs/common';
 
-// Custom pipe
-// https://docs.nestjs.com/pipes#custom-pipes
 @Injectable()
 export class NumberPipe implements PipeTransform {
-    transform(value: any, metadata: ArgumentMetadata) {
-        const num = Number(value);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  transform(value: any, _metadata: any) {
+    const num = Number(value);
 
-        if (isNaN(num)) {
-            throw new BadRequestException('Not a number');
-        }
-
-        return num;
+    if (isNaN(num)) {
+      throw new BadRequestException('Not a number');
     }
+
+    return num;
+  }
 }
