@@ -24,4 +24,12 @@ export class UsersRepository {
         const deleteResult = await this.UserModel.deleteMany({});
         return !deleteResult; // Returns true if at least one document was deleted
     }
+
+    async updateRecoveryCode(userId: string, recoveryCode: string, expiresAt: Date): Promise<boolean> {
+        const result = await this.UserModel.updateOne(
+            {_id: userId},
+            {$set: {recoveryCode, recoveryCodeExpiresAt: expiresAt}}
+        );
+        return result.matchedCount === 1;
+    }
 }

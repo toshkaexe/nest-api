@@ -26,6 +26,8 @@ import {PostsQueryRepository} from "./features/posts/repository/posts.query-repo
 import {AuthController} from './features/auth/controller/auth.controller';
 import {EmailService} from './features/adapter/EmailService';
 import {JwtModule} from '@nestjs/jwt';
+import {ThrottlerModule, ThrottlerGuard} from '@nestjs/throttler';
+import {APP_GUARD} from '@nestjs/core';
 
 const usersProviders: Provider[] = [
     UsersRepository,
@@ -46,6 +48,10 @@ const postsProviders: Provider[] = [
 
 @Module({
     imports: [
+        ThrottlerModule.forRoot([{
+            ttl: 10000,
+            limit: 5,
+        }]),
         MongooseModule.forRoot(
             `${AppSettings.MONGO_URI_CLOUD}/${AppSettings.DB_NANE_NEST}`,
         ),
@@ -56,7 +62,6 @@ const postsProviders: Provider[] = [
             secret: AppSettings.ACCESS_JWT_SECRET,
             signOptions: { expiresIn: '10m' },
         }),
-
     ],
     providers: [AppService,
         ...usersProviders,

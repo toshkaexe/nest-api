@@ -1,9 +1,11 @@
 import {BadRequestException, Injectable, UnauthorizedException} from '@nestjs/common';
 
 import * as bcrypt from "bcryptjs";
+import { v4 as uuidv4 } from 'uuid';
 import {JwtService} from '@nestjs/jwt';
 import {UsersQueryRepository} from '../../users/repository/users.query-repository';
 import {UsersRepository} from '../../users/repository/users.repository';
+import {EmailService} from '../../adapter/EmailService';
 import {AppSettings} from '../../../settings/appSettings';
 
 
@@ -13,6 +15,7 @@ export class AuthService {
         private readonly usersQueryRepository: UsersQueryRepository,
         private readonly usersRepository: UsersRepository,
         private readonly jwtService: JwtService,
+        private readonly emailService: EmailService,
     ) {
     }
 
@@ -98,5 +101,19 @@ export class AuthService {
             login: user.login,
             userId: user.id,
         };
+    }
+
+    async passwordRecovery(email: string): Promise<void> {
+        const user = await this.usersQueryRepository.findByLoginOrEmail(email);
+
+        if (!user) {
+            return;
+        }
+
+        const recoveryCode = uuidv4();
+        const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
+
+        await this.usersRepository.updateRecoveryCode(user._id.toString(), recoveryCode, expiresAt);
+        await this.emailService.sendRecoveryCode(email, recoveryCode);
     }
 }

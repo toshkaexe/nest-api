@@ -15,7 +15,6 @@
     "types": ["node"],
     "strictNullChecks": true,
     "esModuleInterop": true,
-    "interoperable": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,

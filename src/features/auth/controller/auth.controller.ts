@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpCode, Post, UseGuards, Request, ValidationPipe } from '@nestjs/common';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from '../service/auth.service';
 import {
   EmailModel,
@@ -50,5 +51,16 @@ export class AuthController {
     email: EmailModel,
   ) {
     await this.emailService.send(email);
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  @HttpCode(204)
+  @Post('password-recovery')
+  async passwordRecovery(
+    @Body(new ValidationPipe({ transform: true }))
+    body: EmailModel,
+  ) {
+    await this.authService.passwordRecovery(body.email);
   }
 }

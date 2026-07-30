@@ -15,6 +15,12 @@ export class User {
     @Prop({type: Date, default: new Date()})
     createdAt: Date;
 
+    @Prop({type: String, default: null})
+    recoveryCode?: string | null;
+
+    @Prop({type: Date, default: null})
+    recoveryCodeExpiresAt?: Date | null;
+
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
