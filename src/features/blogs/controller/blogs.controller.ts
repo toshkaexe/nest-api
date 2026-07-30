@@ -13,22 +13,22 @@ import {
     ValidationPipe,
 } from '@nestjs/common';
 import {BlogsService} from '../service/blogs.service';
-import {CreateBlogModel} from '../api/models/input/create-blog.model';
+import {CreateBlogModel} from '../dto/input/create-blog.model';
 import {ApiTags} from "@nestjs/swagger";
 import {LoggingInterceptor} from "../../../common/interceptors/logging.interceptor";
 import {PaginationOutput, PaginationWithSearchLoginAndEmailTerm} from "../../../base/model/pagination.base.model";
-import {UserOutputModel} from "../../users/api/models/output/user-output.model";
-import {USERS_SORTING_PROPERTIES} from "../../users/api/users.controller";
-import {BlogsQueryRepository} from "../infrastructure/blog.query-repository";
-import {BlogOutputModel} from "../api/models/output/blog.output.model";
+import {UserOutputModel} from "../../users/dto/output/user-output.model";
+import {USERS_SORTING_PROPERTIES} from "../../users/controller/users.controller";
+import {BlogsQueryRepository} from "../repository/blogs.query-repository";
+import {BlogOutputModel} from "../dto/output/blog.output.model";
 import {SortingPropertiesType} from "../../../base/model/sorting-properies.types";
 import {Schema, Types} from "mongoose";
-import {CreateNewPost, CreateNewPostForGivenBlogId} from "../../posts/models/input/create-new-post.model";
-import {PostsService} from "../../posts/posts.service";
+import {CreateNewPost, CreateNewPostForGivenBlogId} from "../../posts/dto/input/create-new-post.model";
+import {PostsService} from "../../posts/service/posts.service";
 import {Blog} from "../domain/blog.entity";
-import {OutputPostModel} from "../../posts/models/output/posts.output.model";
-import {POSTS_SORTING_PROPERTIES} from "../../posts/posts.controller";
-import {PostsQueryRepository} from "../../posts/infrastructure/posts.query-repository";
+import {OutputPostModel} from "../../posts/dto/output/posts.output.model";
+import {POSTS_SORTING_PROPERTIES} from "../../posts/controller/posts.controller";
+import {PostsQueryRepository} from "../../posts/repository/posts.query-repository";
 
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =

@@ -2,28 +2,29 @@ import {Module, Provider} from '@nestjs/common';
 import {ConfigModule} from '@nestjs/config';
 
 import {AppService} from './app.service';
-import {UsersController} from './features/users/api/users.controller';
+import {UsersController} from './features/users/controller/users.controller';
 
-import {UsersRepository} from './features/users/infrastucture/users.repository';
+import {UsersRepository} from './features/users/repository/users.repository';
 import {MongooseModule} from '@nestjs/mongoose';
 import {AppSettings} from './settings/appSettings';
-import {UsersService} from './features/users/application/user.service';
-import {UsersQueryRepository} from "./features/users/infrastucture/users.query-repository";
+import {UsersService} from './features/users/service/users.service';
+import {UsersQueryRepository} from "./features/users/repository/users.query-repository";
 import {User, UserSchema} from "./features/users/domain/user.entity";
-import {AuthService} from "./features/auth/auth.service";
-import {TestingController} from "./features/testing/api/testing.controller";
-import {WelcomePageController} from "./features/testing/api/welkomePage.controller";
+import {AuthService} from "./features/auth/service/auth.service";
+import {TestingController} from "./features/testing/controller/testing.controller";
+import {WelcomePageController} from "./features/testing/controller/welcome-page.controller";
 import {BlogsController} from "./features/blogs/controller/blogs.controller";
-import {BlogsRepository} from "./features/blogs/infrastructure/blogs.repository";
+import {BlogsRepository} from "./features/blogs/repository/blogs.repository";
 import {BlogsService} from "./features/blogs/service/blogs.service";
 import {Blog, BlogSchema} from "./features/blogs/domain/blog.entity";
-import {BlogsQueryRepository} from "./features/blogs/infrastructure/blog.query-repository";
-import {PostsService} from "./features/posts/posts.service";
-import {PostsController} from "./features/posts/posts.controller";
-import {PostsRepository} from "./features/posts/infrastructure/posts.repository";
-import {Posts, PostsSchema} from "./features/posts/models/domain/posts.entity";
-import {PostsQueryRepository} from "./features/posts/infrastructure/posts.query-repository";
-import { AuthController } from './features/auth/controller/auth.controller';
+import {BlogsQueryRepository} from "./features/blogs/repository/blogs.query-repository";
+import {PostsService} from "./features/posts/service/posts.service";
+import {PostsController} from "./features/posts/controller/posts.controller";
+import {PostsRepository} from "./features/posts/repository/posts.repository";
+import {Posts, PostsSchema} from "./features/posts/domain/posts.entity";
+import {PostsQueryRepository} from "./features/posts/repository/posts.query-repository";
+import {AuthController} from './features/auth/controller/auth.controller';
+import {EmailService} from './features/adapter/EmailService';
 import {JwtModule} from '@nestjs/jwt';
 
 const usersProviders: Provider[] = [
@@ -62,6 +63,7 @@ const postsProviders: Provider[] = [
         ...blogsProviders,
         ...postsProviders,
         AuthService,
+        EmailService,
     ],
     controllers: [UsersController, TestingController, WelcomePageController, BlogsController, PostsController, AuthController],
 })
