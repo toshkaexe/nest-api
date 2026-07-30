@@ -31,6 +31,22 @@ export class EmailService {
     });
   }
 
+  async sendConfirmationCode(
+    email: string,
+    confirmationCode: string,
+  ): Promise<void> {
+    await this.transporter.sendMail({
+      from: `"Blogger API" <${AppSettings.SEND_MAIL_SERVICE_EMAIL}>`,
+      to: email,
+      subject: 'Registration Confirmation',
+      html: `
+                <h1>Registration Confirmation</h1>
+                <p>Your confirmation code: <strong>${confirmationCode}</strong></p>
+                <p>This code will expire in 1 hour.</p>
+            `,
+    });
+  }
+
   async send(email: { email: string }): Promise<void> {
     await this.transporter.sendMail({
       from: `"Blogger API" <${AppSettings.SEND_MAIL_SERVICE_EMAIL}>`,

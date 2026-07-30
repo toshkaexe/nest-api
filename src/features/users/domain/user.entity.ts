@@ -16,6 +16,15 @@ export class User {
   createdAt: Date;
 
   @Prop({ type: String, default: null })
+  confirmationCode?: string | null;
+
+  @Prop({ type: Date, default: null })
+  confirmationCodeExpiresAt?: Date | null;
+
+  @Prop({ type: Boolean, default: false })
+  isConfirmed?: boolean;
+
+  @Prop({ type: String, default: null })
   recoveryCode?: string | null;
 
   @Prop({ type: Date, default: null })

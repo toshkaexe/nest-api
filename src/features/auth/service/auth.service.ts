@@ -86,19 +86,22 @@ export class AuthService {
       });
     }
 
-    // Создаем нового пользователя
     const hashedPassword = await this.generatePasswordHash(password);
+    const confirmationCode = uuidv4();
+    const confirmationCodeExpiresAt = new Date(Date.now() + 60 * 60 * 1000);
+
     const newUser = {
       login,
       password: hashedPassword,
       email,
       createdAt: new Date(),
+      confirmationCode,
+      confirmationCodeExpiresAt,
+      isConfirmed: false,
     };
 
     await this.usersRepository.create(newUser);
-    console.log('User registered successfully');
-
-    // TODO: Send confirmation email
+    await this.emailService.sendConfirmationCode(email, confirmationCode);
   }
 
   async getMe(
@@ -118,6 +121,51 @@ export class AuthService {
       login: user.login,
       userId: user.id,
     };
+  }
+
+  async confirmRegistration(code: string): Promise<void> {
+    const user = await this.usersRepository.findByConfirmationCode(code);
+
+    if (!user) {
+      throw new BadRequestException({
+        errorsMessages: [
+          {
+            message:
+              'Confirmation code is incorrect, expired or already been applied',
+            field: 'code',
+          },
+        ],
+      });
+    }
+
+    if (user.isConfirmed) {
+      throw new BadRequestException({
+        errorsMessages: [
+          {
+            message:
+              'Confirmation code is incorrect, expired or already been applied',
+            field: 'code',
+          },
+        ],
+      });
+    }
+
+    if (
+      user.confirmationCodeExpiresAt &&
+      user.confirmationCodeExpiresAt < new Date()
+    ) {
+      throw new BadRequestException({
+        errorsMessages: [
+          {
+            message:
+              'Confirmation code is incorrect, expired or already been applied',
+            field: 'code',
+          },
+        ],
+      });
+    }
+
+    await this.usersRepository.confirmUser(user._id.toString());
   }
 
   async passwordRecovery(email: string): Promise<void> {

@@ -41,6 +41,12 @@ export class EmailModel {
   email: string;
 }
 
+export class RegistrationConfirmationCodeModel {
+  @IsString()
+  @IsNotEmpty()
+  code: string;
+}
+
 export class NewPasswordModel {
   @IsString()
   @IsNotEmpty()

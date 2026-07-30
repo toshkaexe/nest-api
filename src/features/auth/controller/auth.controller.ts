@@ -15,6 +15,7 @@ import {
   LoginModel,
   LoginPasswordEmailModel,
   NewPasswordModel,
+  RegistrationConfirmationCodeModel,
 } from '../dto/login.model';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { EmailService } from '../../adapter/EmailService';
@@ -52,6 +53,17 @@ export class AuthController {
   async getMe(@Request() req: any) {
     const userId = req.user.userId;
     return await this.authService.getMe(userId);
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 5, ttl: 10000 } })
+  @HttpCode(204)
+  @Post('registration-confirmation')
+  async registrationConfirmation(
+    @Body(new ValidationPipe({ transform: true }))
+    body: RegistrationConfirmationCodeModel,
+  ) {
+    await this.authService.confirmRegistration(body.code);
   }
 
   @HttpCode(204)
