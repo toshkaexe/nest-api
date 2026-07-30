@@ -22,6 +22,8 @@ import { PostsController } from './features/posts/controller/posts.controller';
 import { PostsRepository } from './features/posts/repository/posts.repository';
 import { Posts, PostsSchema } from './features/posts/domain/posts.entity';
 import { PostsQueryRepository } from './features/posts/repository/posts.query-repository';
+import { PostLike, PostLikeSchema } from './features/posts/domain/post-like.entity';
+import { PostLikeRepository } from './features/posts/repository/post-like.repository';
 import { AuthController } from './features/auth/controller/auth.controller';
 import { EmailService } from './features/adapter/EmailService';
 import { JwtModule } from '@nestjs/jwt';
@@ -58,6 +60,7 @@ const postsProviders: Provider[] = [
   PostsRepository,
   PostsService,
   PostsQueryRepository,
+  PostLikeRepository,
 ];
 
 const commentsProviders: Provider[] = [
@@ -78,6 +81,7 @@ const commentsProviders: Provider[] = [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
     MongooseModule.forFeature([{ name: Posts.name, schema: PostsSchema }]),
+    MongooseModule.forFeature([{ name: PostLike.name, schema: PostLikeSchema }]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
     MongooseModule.forFeature([
       { name: CommentLike.name, schema: CommentLikeSchema },

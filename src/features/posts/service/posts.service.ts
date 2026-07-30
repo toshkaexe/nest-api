@@ -8,12 +8,15 @@ import {
 } from '../dto/input/create-new-post.model';
 import { Posts } from '../domain/posts.entity';
 import { Blog } from '../../blogs/domain/blog.entity';
+import { PostLikeRepository } from '../repository/post-like.repository';
+import { LikeStatus } from '../dto/input/like-status.model';
 
 @Injectable()
 export class PostsService {
   constructor(
     private readonly postsRepository: PostsRepository,
     private readonly blogsRepository: BlogsRepository,
+    private readonly postLikeRepository: PostLikeRepository,
   ) {}
 
   async create(data: CreateNewPost): Promise<Posts> {
@@ -147,5 +150,19 @@ export class PostsService {
     const result = await this.postsRepository.deleteAll();
     console.log(result);
     return result;
+  }
+
+  async setLikeStatus(
+    postId: string,
+    userId: string,
+    login: string,
+    status: LikeStatus,
+  ): Promise<void> {
+    const post = await this.postsRepository.findById(postId);
+    if (!post) {
+      throw new NotFoundException(`Post with ID ${postId} not found`);
+    }
+
+    await this.postLikeRepository.setLikeStatus(postId, userId, login, status);
   }
 }

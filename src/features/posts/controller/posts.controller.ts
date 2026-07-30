@@ -37,6 +37,7 @@ import { CreateCommentModel } from '../../comments/dto/input/create-comment.mode
 import { CreateCommentCommand } from '../../comments/use-cases/create-comment.use-case';
 import { CommentsQueryRepository } from '../../comments/repository/comments.query-repository';
 import { CommentOutputModel } from '../../comments/dto/output/comment.output.model';
+import { LikeStatusModel } from '../dto/input/like-status.model';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<OutputPostModel> =
   ['title'];
@@ -161,6 +162,22 @@ export class PostsController {
       postId,
       pagination,
       userId,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(204)
+  @Put(':postId/like-status')
+  async setLikeStatus(
+    @Param('postId') postId: string,
+    @Body(new ValidationPipe({ transform: true })) body: LikeStatusModel,
+    @Request() req: any,
+  ): Promise<void> {
+    await this.postsService.setLikeStatus(
+      postId,
+      req.user.userId,
+      req.user.login,
+      body.likeStatus,
     );
   }
 }
