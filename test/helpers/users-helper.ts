@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import request from 'supertest';
 
 const AUTH_CREDENTIALS = Buffer.from('admin:qwerty').toString('base64');
 
