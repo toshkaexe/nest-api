@@ -63,11 +63,14 @@ export class PostsController {
     return this.postsService.create(newPost);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(200)
   @Get()
   async findAll(
     @Query() query: any,
+    @Request() req: any,
   ): Promise<PaginationOutput<OutputPostModel>> {
+    const userId = req.user?.userId || null;
     const pagination: PaginationWithSearchLoginAndEmailTerm =
       new PaginationWithSearchLoginAndEmailTerm(
         query,
@@ -75,7 +78,7 @@ export class PostsController {
       );
 
     const posts: PaginationOutput<OutputPostModel> =
-      await this.postsQueryRepository.getAll(pagination);
+      await this.postsQueryRepository.getAll(pagination, userId);
 
     return posts;
   }

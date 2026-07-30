@@ -64,4 +64,8 @@ export class PostLikeRepository {
       .limit(limit)
       .lean();
   }
+
+  async deleteAll(): Promise<void> {
+    await this.postLikeModel.deleteMany({});
+  }
 }

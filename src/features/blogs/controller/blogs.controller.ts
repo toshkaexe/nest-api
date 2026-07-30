@@ -9,11 +9,13 @@ import {
   Post,
   Put,
   Query,
+  Request,
   UseGuards,
   UseInterceptors,
   ValidationPipe,
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
+import { OptionalJwtAuthGuard } from '../../auth/guards/optional-jwt-auth.guard';
 import { BlogsService } from '../service/blogs.service';
 import { CreateBlogModel } from '../dto/input/create-blog.model';
 import { ApiTags } from '@nestjs/swagger';
@@ -124,24 +126,30 @@ export class BlogsController {
     return this.postsService.createPostForBlog(blogId, newPost);
   }
 
+  @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(200)
   @Get(':blogId/posts')
   async getPostsForBlog(
     @Param('blogId') blogId: string,
     @Query() query: any,
+    @Request() req: any,
   ): Promise<PaginationOutput<OutputPostModel>> {
+    const userId = req.user?.userId || null;
     const pagination = new PaginationWithSearchLoginAndEmailTerm(
       query,
       BLOGS_SORTING_PROPERTIES,
     );
+
+    const blog = await this.blogsService.findBlogById(blogId);
+    if (!blog) {
+      throw new NotFoundException(`Blog with ID ${blogId} not found`);
+    }
+
     const posts = await this.postsQueryRepository.getPostsForBlog(
       blogId,
       pagination,
+      userId,
     );
-
-    if (!posts.items.length) {
-      throw new NotFoundException(`No posts found for Blog with ID ${blogId}`);
-    }
 
     return posts;
   }

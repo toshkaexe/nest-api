@@ -135,8 +135,8 @@ export class PostsService {
     return 100;
   }
   async deleteAll(): Promise<boolean> {
+    await this.postLikeRepository.deleteAll();
     const result = await this.postsRepository.deleteAll();
-    console.log(result);
     return result;
   }
 

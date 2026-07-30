@@ -19,6 +19,7 @@ export class PostsQueryRepository {
 
   async getAll(
     pagination: PaginationWithSearchLoginAndEmailTerm,
+    userId: string | null = null,
   ): Promise<PaginationOutput<OutputPostModel>> {
     const filter: FilterQuery<Posts> = pagination.searchNameTerm
       ? { title: { $regex: pagination.searchNameTerm, $options: 'i' } }
@@ -34,7 +35,9 @@ export class PostsQueryRepository {
       .limit(pagination.pageSize)
       .exec();
 
-    const mappedItems = items.map(postMapper);
+    const mappedItems = await Promise.all(
+      items.map((post) => this.mapPostWithLikes(post, userId)),
+    );
 
     return new PaginationOutput(
       mappedItems,
@@ -47,6 +50,7 @@ export class PostsQueryRepository {
   async getPostsForBlog(
     blogId: string,
     pagination: PaginationWithSearchLoginAndEmailTerm,
+    userId: string | null = null,
   ): Promise<PaginationOutput<OutputPostModel>> {
     const filter: FilterQuery<Posts> = { blogId };
 
@@ -60,7 +64,9 @@ export class PostsQueryRepository {
       .limit(pagination.pageSize)
       .exec();
 
-    const mappedItems = items.map(postMapper);
+    const mappedItems = await Promise.all(
+      items.map((post) => this.mapPostWithLikes(post, userId)),
+    );
 
     return new PaginationOutput(
       mappedItems,
@@ -77,11 +83,19 @@ export class PostsQueryRepository {
       return null;
     }
 
+    return this.mapPostWithLikes(post, userId);
+  }
+
+  private async mapPostWithLikes(
+    post: PostsDocument,
+    userId: string | null,
+  ): Promise<OutputPostModel> {
+    const postId = post._id.toString();
     const likesCount = await this.postLikeRepository.getLikesCount(postId);
     const dislikesCount = await this.postLikeRepository.getDislikesCount(postId);
     const newestLikes = await this.postLikeRepository.getNewestLikes(postId, 3);
 
-    let myStatus = LikeStatus.None;
+    let myStatus: LikeStatus = LikeStatus.None;
     if (userId) {
       const userLike = await this.postLikeRepository.findUserLikeForPost(postId, userId);
       if (userLike) {
