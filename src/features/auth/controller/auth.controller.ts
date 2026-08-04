@@ -29,10 +29,13 @@ export class AuthController {
   async login(
     @Body(new ValidationPipe({ transform: true }))
     loginPasswordDTO: LoginModel,
+    @Request() req: any,
     @Res({ passthrough: true }) res: Response,
   ) {
     const { loginOrEmail, password } = loginPasswordDTO;
-    const result = await this.authService.login(loginOrEmail, password);
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    const userAgent = req.headers['user-agent'] || 'unknown';
+    const result = await this.authService.login(loginOrEmail, password, ip, userAgent);
 
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,

@@ -11,6 +11,7 @@ import { UsersQueryRepository } from '../../users/repository/users.query-reposit
 import { UsersRepository } from '../../users/repository/users.repository';
 import { EmailService } from '../../adapter/EmailService';
 import { AppSettings } from '../../../settings/appSettings';
+import { RefreshTokenMetaRepository } from '../repository/refresh-token-meta.repository';
 
 @Injectable()
 export class AuthService {
@@ -19,6 +20,7 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
+    private readonly refreshTokenMetaRepository: RefreshTokenMetaRepository,
   ) {}
 
   async generatePasswordHash(password: string): Promise<string> {
@@ -28,6 +30,8 @@ export class AuthService {
   async login(
     loginOrEmail: string,
     password: string,
+    ip: string,
+    userAgent: string,
   ): Promise<{ accessToken: string; refreshToken: string }> {
     const user =
       await this.usersQueryRepository.findByLoginOrEmail(loginOrEmail);
@@ -42,9 +46,32 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { userId: user._id || user.id, login: user.login };
-    const accessToken = this.jwtService.sign(payload, { expiresIn: '10m' });
-    const refreshToken = this.jwtService.sign(payload, { expiresIn: '10h' });
+    const userId = (user._id || user.id).toString();
+    const deviceId = uuidv4();
+
+    const accessToken = this.jwtService.sign(
+      { userId, login: user.login },
+      { expiresIn: '10m' },
+    );
+
+    const refreshToken = this.jwtService.sign(
+      { userId, login: user.login, deviceId },
+      { secret: AppSettings.REFRESH_JWT_SECRET, expiresIn: '10h' },
+    );
+
+    const decoded = this.jwtService.decode(refreshToken) as any;
+    const issuedAt = new Date(decoded.iat * 1000);
+    const expiresAt = new Date(decoded.exp * 1000);
+
+    await this.refreshTokenMetaRepository.create({
+      deviceId,
+      userId,
+      ip,
+      title: userAgent || 'unknown',
+      issuedAt,
+      expiresAt,
+      lastActiveDate: issuedAt,
+    });
 
     return { accessToken, refreshToken };
   }
@@ -252,23 +279,47 @@ export class AuthService {
       throw new UnauthorizedException('No refresh token');
     }
 
+    let payload: any;
     try {
-      const payload = this.jwtService.verify(token, {
-        secret: AppSettings.ACCESS_JWT_SECRET,
+      payload = this.jwtService.verify(token, {
+        secret: AppSettings.REFRESH_JWT_SECRET,
       });
-
-      const newPayload = { userId: payload.userId, login: payload.login };
-      const accessToken = this.jwtService.sign(newPayload, {
-        expiresIn: '10m',
-      });
-      const refreshToken = this.jwtService.sign(newPayload, {
-        expiresIn: '10h',
-      });
-
-      return { accessToken, refreshToken };
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
+
+    const issuedAt = new Date(payload.iat * 1000);
+    const session = await this.refreshTokenMetaRepository.findByDeviceIdAndIssuedAt(
+      payload.deviceId,
+      issuedAt,
+    );
+
+    if (!session) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const accessToken = this.jwtService.sign(
+      { userId: payload.userId, login: payload.login },
+      { expiresIn: '10m' },
+    );
+
+    const newRefreshToken = this.jwtService.sign(
+      { userId: payload.userId, login: payload.login, deviceId: payload.deviceId },
+      { secret: AppSettings.REFRESH_JWT_SECRET, expiresIn: '10h' },
+    );
+
+    const decoded = this.jwtService.decode(newRefreshToken) as any;
+    const newIssuedAt = new Date(decoded.iat * 1000);
+    const newExpiresAt = new Date(decoded.exp * 1000);
+
+    await this.refreshTokenMetaRepository.updateSession(
+      payload.deviceId,
+      newIssuedAt,
+      newExpiresAt,
+      newIssuedAt,
+    );
+
+    return { accessToken, refreshToken: newRefreshToken };
   }
 
   async logout(token: string): Promise<void> {
@@ -276,12 +327,25 @@ export class AuthService {
       throw new UnauthorizedException('No refresh token');
     }
 
+    let payload: any;
     try {
-      this.jwtService.verify(token, {
-        secret: AppSettings.ACCESS_JWT_SECRET,
+      payload = this.jwtService.verify(token, {
+        secret: AppSettings.REFRESH_JWT_SECRET,
       });
     } catch {
       throw new UnauthorizedException('Invalid refresh token');
     }
+
+    const issuedAt = new Date(payload.iat * 1000);
+    const session = await this.refreshTokenMetaRepository.findByDeviceIdAndIssuedAt(
+      payload.deviceId,
+      issuedAt,
+    );
+
+    if (!session) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    await this.refreshTokenMetaRepository.deleteByDeviceId(payload.deviceId);
   }
 }

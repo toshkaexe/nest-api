@@ -47,6 +47,12 @@ import { SetLikeStatusUseCase } from './features/comments/use-cases/set-like-sta
 import { CreateCommentUseCase } from './features/comments/use-cases/create-comment.use-case';
 import { UpdateCommentUseCase } from './features/comments/use-cases/update-comment.use-case';
 import { DeleteCommentUseCase } from './features/comments/use-cases/delete-comment.use-case';
+import {
+  RefreshTokenMeta,
+  RefreshTokenMetaSchema,
+} from './features/auth/domain/refresh-token-meta.entity';
+import { RefreshTokenMetaRepository } from './features/auth/repository/refresh-token-meta.repository';
+import { SecurityController } from './features/security/controller/security.controller';
 
 const usersProviders: Provider[] = [
   UsersRepository,
@@ -91,6 +97,9 @@ const commentsProviders: Provider[] = [
     MongooseModule.forFeature([
       { name: CommentLike.name, schema: CommentLikeSchema },
     ]),
+    MongooseModule.forFeature([
+      { name: RefreshTokenMeta.name, schema: RefreshTokenMetaSchema },
+    ]),
     JwtModule.register({
       secret: AppSettings.ACCESS_JWT_SECRET,
       signOptions: { expiresIn: '10m' },
@@ -105,6 +114,7 @@ const commentsProviders: Provider[] = [
     ...commentsProviders,
     AuthService,
     EmailService,
+    RefreshTokenMetaRepository,
   ],
   controllers: [
     UsersController,
@@ -114,6 +124,7 @@ const commentsProviders: Provider[] = [
     PostsController,
     AuthController,
     CommentsController,
+    SecurityController,
   ],
 })
 export class AppModule {}
