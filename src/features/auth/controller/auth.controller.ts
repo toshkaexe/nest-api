@@ -10,6 +10,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { ThrottlerGuard } from '@nestjs/throttler';
 import { AuthService } from '../service/auth.service';
 import {
   EmailModel,
@@ -24,6 +25,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(200)
   @Post('login')
   async login(
@@ -45,6 +47,7 @@ export class AuthController {
     return { accessToken: result.accessToken };
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('registration')
   async registration(
@@ -63,6 +66,7 @@ export class AuthController {
     return await this.authService.getMe(userId);
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('registration-confirmation')
   async registrationConfirmation(
@@ -72,6 +76,7 @@ export class AuthController {
     await this.authService.confirmRegistration(body.code);
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('registration-email-resending')
   async registrationEmailResending(
@@ -81,6 +86,7 @@ export class AuthController {
     await this.authService.resendConfirmationEmail(body.email);
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('password-recovery')
   async passwordRecovery(
@@ -90,6 +96,7 @@ export class AuthController {
     await this.authService.passwordRecovery(body.email);
   }
 
+  @UseGuards(ThrottlerGuard)
   @HttpCode(204)
   @Post('new-password')
   async newPassword(

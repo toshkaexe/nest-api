@@ -42,6 +42,7 @@ import {
   CommentLike,
   CommentLikeSchema,
 } from './features/comments/domain/comment-like.entity';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { CqrsModule } from '@nestjs/cqrs';
 import { SetLikeStatusUseCase } from './features/comments/use-cases/set-like-status.use-case';
 import { CreateCommentUseCase } from './features/comments/use-cases/create-comment.use-case';
@@ -104,6 +105,7 @@ const commentsProviders: Provider[] = [
       secret: AppSettings.ACCESS_JWT_SECRET,
       signOptions: { expiresIn: '10m' },
     }),
+    ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
     CqrsModule.forRoot(),
   ],
   providers: [
