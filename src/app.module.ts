@@ -103,7 +103,7 @@ const commentsProviders: Provider[] = [
     ]),
     JwtModule.register({
       secret: AppSettings.ACCESS_JWT_SECRET,
-      signOptions: { expiresIn: '10m' },
+      signOptions: { expiresIn: '10s' },
     }),
     ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
     CqrsModule.forRoot(),

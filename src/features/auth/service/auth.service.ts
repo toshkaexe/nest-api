@@ -51,12 +51,12 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(
       { userId, login: user.login },
-      { expiresIn: '10m' },
+      { expiresIn: '10s' },
     );
 
     const refreshToken = this.jwtService.sign(
       { userId, login: user.login, deviceId },
-      { secret: AppSettings.REFRESH_JWT_SECRET, expiresIn: '10h' },
+      { secret: AppSettings.REFRESH_JWT_SECRET, expiresIn: '20s' },
     );
 
     const decoded = this.jwtService.decode(refreshToken) as any;
@@ -121,7 +121,10 @@ export class AuthService {
     };
 
     await this.usersRepository.create(newUser);
-    await this.emailService.sendRegistrationConfirmationLink(email, confirmationCode);
+    await this.emailService.sendRegistrationConfirmationLink(
+      email,
+      confirmationCode,
+    );
   }
 
   async getMe(
@@ -171,7 +174,10 @@ export class AuthService {
       newExpiresAt,
     );
 
-    await this.emailService.sendRegistrationConfirmationLink(email, newConfirmationCode);
+    await this.emailService.sendRegistrationConfirmationLink(
+      email,
+      newConfirmationCode,
+    );
   }
 
   async confirmRegistration(code: string): Promise<void> {
@@ -289,10 +295,11 @@ export class AuthService {
     }
 
     const issuedAt = new Date(payload.iat * 1000);
-    const session = await this.refreshTokenMetaRepository.findByDeviceIdAndIssuedAt(
-      payload.deviceId,
-      issuedAt,
-    );
+    const session =
+      await this.refreshTokenMetaRepository.findByDeviceIdAndIssuedAt(
+        payload.deviceId,
+        issuedAt,
+      );
 
     if (!session) {
       throw new UnauthorizedException('Invalid refresh token');
@@ -300,12 +307,16 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(
       { userId: payload.userId, login: payload.login },
-      { expiresIn: '10m' },
+      { expiresIn: '10s' },
     );
 
     const newRefreshToken = this.jwtService.sign(
-      { userId: payload.userId, login: payload.login, deviceId: payload.deviceId },
-      { secret: AppSettings.REFRESH_JWT_SECRET, expiresIn: '10h' },
+      {
+        userId: payload.userId,
+        login: payload.login,
+        deviceId: payload.deviceId,
+      },
+      { secret: AppSettings.REFRESH_JWT_SECRET, expiresIn: '20s' },
     );
 
     const decoded = this.jwtService.decode(newRefreshToken) as any;
@@ -337,10 +348,11 @@ export class AuthService {
     }
 
     const issuedAt = new Date(payload.iat * 1000);
-    const session = await this.refreshTokenMetaRepository.findByDeviceIdAndIssuedAt(
-      payload.deviceId,
-      issuedAt,
-    );
+    const session =
+      await this.refreshTokenMetaRepository.findByDeviceIdAndIssuedAt(
+        payload.deviceId,
+        issuedAt,
+      );
 
     if (!session) {
       throw new UnauthorizedException('Invalid refresh token');
