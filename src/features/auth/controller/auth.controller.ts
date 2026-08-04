@@ -37,7 +37,12 @@ export class AuthController {
     const { loginOrEmail, password } = loginPasswordDTO;
     const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
     const userAgent = req.headers['user-agent'] || 'unknown';
-    const result = await this.authService.login(loginOrEmail, password, ip, userAgent);
+    const result = await this.authService.login(
+      loginOrEmail,
+      password,
+      ip,
+      userAgent,
+    );
 
     res.cookie('refreshToken', result.refreshToken, {
       httpOnly: true,
@@ -128,10 +133,7 @@ export class AuthController {
 
   @HttpCode(204)
   @Post('logout')
-  async logout(
-    @Request() req: any,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logout(@Request() req: any, @Res({ passthrough: true }) res: Response) {
     const token = req.cookies?.refreshToken;
     await this.authService.logout(token);
     res.clearCookie('refreshToken');
