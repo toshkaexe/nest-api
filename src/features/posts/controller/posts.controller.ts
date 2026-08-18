@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
@@ -43,6 +44,7 @@ import { LikeStatusModel } from '../dto/input/like-status.model';
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<OutputPostModel> =
   ['title'];
 
+@SkipThrottle()
 @ApiTags('Posts')
 @Controller('posts')
 @UseInterceptors(LoggingInterceptor)

@@ -1,6 +1,8 @@
 import { Controller, Get, HttpCode, UseInterceptors } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { LoggingInterceptor } from '../../../common/interceptors/logging.interceptor';
 
+@SkipThrottle()
 @UseInterceptors(LoggingInterceptor)
 @Controller('/')
 export class WelcomePageController {

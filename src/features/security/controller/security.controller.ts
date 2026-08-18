@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   Controller,
   Delete,
@@ -15,6 +16,7 @@ import { AppSettings } from '../../../settings/appSettings';
 import { RefreshTokenMetaSqlRepository } from '../../auth/repository/refresh-token-meta.sql-repository';
 import { IpRestrictionsSqlRepository } from '../repository/ip-restrictions.sql-repository';
 
+@SkipThrottle()
 @Controller('security')
 export class SecurityController {
   constructor(

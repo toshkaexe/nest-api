@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
@@ -25,6 +26,7 @@ import { UsersQueryRepository } from '../repository/users.query-repository';
 export const SA_USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
 
+@SkipThrottle()
 @ApiTags('SA Users')
 @Controller('sa/users')
 @UseGuards(BasicAuthGuard)

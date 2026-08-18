@@ -19,6 +19,7 @@ import {
   RegistrationConfirmationCodeModel,
 } from '../dto/login.model';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { SkipThrottle } from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
@@ -60,6 +61,7 @@ export class AuthController {
     await this.authService.registration(login, email, password);
   }
 
+  @SkipThrottle()
   @HttpCode(200)
   @Get('me')
   @UseGuards(JwtAuthGuard)
@@ -86,6 +88,7 @@ export class AuthController {
     await this.authService.resendConfirmationEmail(body.email);
   }
 
+  @SkipThrottle()
   @HttpCode(204)
   @Post('password-recovery')
   async passwordRecovery(
@@ -95,6 +98,7 @@ export class AuthController {
     await this.authService.passwordRecovery(body.email);
   }
 
+  @SkipThrottle()
   @HttpCode(204)
   @Post('new-password')
   async newPassword(
@@ -107,6 +111,7 @@ export class AuthController {
     );
   }
 
+  @SkipThrottle()
   @HttpCode(200)
   @Post('refresh-token')
   async refreshToken(
@@ -124,6 +129,7 @@ export class AuthController {
     return { accessToken: result.accessToken };
   }
 
+  @SkipThrottle()
   @HttpCode(204)
   @Post('logout')
   async logout(@Request() req: any, @Res({ passthrough: true }) res: Response) {

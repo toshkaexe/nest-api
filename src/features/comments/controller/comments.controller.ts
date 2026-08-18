@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   Body,
   Controller,
@@ -21,6 +22,7 @@ import { UpdateCommentCommand } from '../use-cases/update-comment.use-case';
 import { DeleteCommentCommand } from '../use-cases/delete-comment.use-case';
 import { SetLikeStatusCommand } from '../use-cases/set-like-status.use-case';
 
+@SkipThrottle()
 @Controller('comments')
 export class CommentsController {
   constructor(

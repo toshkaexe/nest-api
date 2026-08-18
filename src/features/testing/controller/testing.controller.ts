@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import { Controller, Delete, HttpCode } from '@nestjs/common';
 
 import { UsersService } from '../../users/service/users.service';
@@ -7,6 +8,7 @@ import { CommentsService } from '../../comments/service/comments.service';
 import { RefreshTokenMetaSqlRepository } from '../../auth/repository/refresh-token-meta.sql-repository';
 import { IpRestrictionsSqlRepository } from '../../security/repository/ip-restrictions.sql-repository';
 
+@SkipThrottle()
 @Controller('testing/all-data')
 export class TestingController {
   constructor(

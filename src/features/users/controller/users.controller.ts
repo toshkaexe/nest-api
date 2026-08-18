@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import { ApiTags } from '@nestjs/swagger';
 import {
   Body,
@@ -31,6 +32,7 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
 
 // Tag для swagger
+@SkipThrottle()
 @ApiTags('Users')
 @Controller('users')
 @UseInterceptors(LoggingInterceptor)

@@ -1,4 +1,6 @@
 import { Module, Provider } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
+import { ThrottlerGuard } from '@nestjs/throttler';
 
 import { AppService } from './app.service';
 import { UsersController } from './features/users/controller/users.controller';
@@ -44,6 +46,7 @@ import {
   CommentLikeSchema,
 } from './features/comments/domain/comment-like.entity';
 import { CqrsModule } from '@nestjs/cqrs';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { PostgresModule } from './database/postgres.module';
 import { SetLikeStatusUseCase } from './features/comments/use-cases/set-like-status.use-case';
 import { CreateCommentUseCase } from './features/comments/use-cases/create-comment.use-case';
@@ -98,9 +101,13 @@ const commentsProviders: Provider[] = [
     ]),
     JwtModule.register({
       secret: AppSettings.ACCESS_JWT_SECRET,
-      signOptions: { expiresIn: '5m' },
+      signOptions: { expiresIn: '10s' },
     }),
     CqrsModule.forRoot(),
+    ThrottlerModule.forRoot([{
+      ttl: 10000,
+      limit: 5,
+    }]),
     PostgresModule,
   ],
   providers: [
@@ -113,6 +120,10 @@ const commentsProviders: Provider[] = [
     EmailService,
     RefreshTokenMetaSqlRepository,
     IpRestrictionsSqlRepository,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
   controllers: [
     UsersController,

@@ -1,3 +1,4 @@
+import { SkipThrottle } from '@nestjs/throttler';
 import {
   Body,
   Controller,
@@ -36,6 +37,7 @@ import { PostsQueryRepository } from '../../posts/repository/posts.query-reposit
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
   ['name'];
 
+@SkipThrottle()
 @ApiTags('Blogs')
 @Controller('blogs')
 @UseInterceptors(LoggingInterceptor)
