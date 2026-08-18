@@ -2,6 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { UsersController } from './features/users/controller/users.controller';
+import { SaUsersController } from './features/users/controller/sa-users.controller';
 
 import { UsersRepository } from './features/users/repository/users.repository';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -42,17 +43,14 @@ import {
   CommentLike,
   CommentLikeSchema,
 } from './features/comments/domain/comment-like.entity';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { CqrsModule } from '@nestjs/cqrs';
+import { PostgresModule } from './database/postgres.module';
 import { SetLikeStatusUseCase } from './features/comments/use-cases/set-like-status.use-case';
 import { CreateCommentUseCase } from './features/comments/use-cases/create-comment.use-case';
 import { UpdateCommentUseCase } from './features/comments/use-cases/update-comment.use-case';
 import { DeleteCommentUseCase } from './features/comments/use-cases/delete-comment.use-case';
-import {
-  RefreshTokenMeta,
-  RefreshTokenMetaSchema,
-} from './features/auth/domain/refresh-token-meta.entity';
-import { RefreshTokenMetaRepository } from './features/auth/repository/refresh-token-meta.repository';
+import { RefreshTokenMetaSqlRepository } from './features/auth/repository/refresh-token-meta.sql-repository';
+import { IpRestrictionsSqlRepository } from './features/security/repository/ip-restrictions.sql-repository';
 import { SecurityController } from './features/security/controller/security.controller';
 
 const usersProviders: Provider[] = [
@@ -98,15 +96,12 @@ const commentsProviders: Provider[] = [
     MongooseModule.forFeature([
       { name: CommentLike.name, schema: CommentLikeSchema },
     ]),
-    MongooseModule.forFeature([
-      { name: RefreshTokenMeta.name, schema: RefreshTokenMetaSchema },
-    ]),
     JwtModule.register({
       secret: AppSettings.ACCESS_JWT_SECRET,
-      signOptions: { expiresIn: '10s' },
+      signOptions: { expiresIn: '5m' },
     }),
-    ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
     CqrsModule.forRoot(),
+    PostgresModule,
   ],
   providers: [
     AppService,
@@ -116,10 +111,12 @@ const commentsProviders: Provider[] = [
     ...commentsProviders,
     AuthService,
     EmailService,
-    RefreshTokenMetaRepository,
+    RefreshTokenMetaSqlRepository,
+    IpRestrictionsSqlRepository,
   ],
   controllers: [
     UsersController,
+    SaUsersController,
     TestingController,
     WelcomePageController,
     BlogsController,

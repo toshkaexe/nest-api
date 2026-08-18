@@ -5,7 +5,7 @@ dotenv.config();
 export const AppSettings = {
   PORT: process.env.PORT,
   ACCESS_JWT_SECRET: process.env.ACCESS_JWT_SECRET,
-  ACCESS_JWT_EXPIRES: '10m',
+  ACCESS_JWT_EXPIRES: '5m',
   REFRESH_JWT_SECRET: process.env.REFRESH_JWT_SECRET,
   REFRESH_JWT_EXPIRES: '10h',
   AUTH_LOGIN: process.env.AUTH_LOGIN,
@@ -18,4 +18,5 @@ export const AppSettings = {
   EMAIL_PWS: process.env.EMAIL_PWS,
   MONGO_URI_CLOUD: process.env.MONGO_URI_CLOUD,
   MONGO_URI_LOCAL: process.env.MONGO_URI_CLOUD,
+  POSTGRES_URL: process.env.POSTGRES_URL,
 };

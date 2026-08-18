@@ -6,18 +6,21 @@ import {
   HttpCode,
   NotFoundException,
   Param,
+  Post,
   Request,
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppSettings } from '../../../settings/appSettings';
-import { RefreshTokenMetaRepository } from '../../auth/repository/refresh-token-meta.repository';
+import { RefreshTokenMetaSqlRepository } from '../../auth/repository/refresh-token-meta.sql-repository';
+import { IpRestrictionsSqlRepository } from '../repository/ip-restrictions.sql-repository';
 
 @Controller('security')
 export class SecurityController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly refreshTokenMetaRepository: RefreshTokenMetaRepository,
+    private readonly refreshTokenMetaRepository: RefreshTokenMetaSqlRepository,
+    private readonly ipRestrictionsRepository: IpRestrictionsSqlRepository,
   ) {}
 
   @HttpCode(200)
@@ -67,6 +70,31 @@ export class SecurityController {
     }
 
     await this.refreshTokenMetaRepository.deleteByDeviceId(deviceId);
+  }
+
+  @HttpCode(201)
+  @Post('ip-restriction')
+  async addIpRestriction(@Request() req: any) {
+    const ip = req.ip || req.headers['x-forwarded-for'] || 'unknown';
+    const url = req.originalUrl;
+    const date = new Date();
+
+    await this.ipRestrictionsRepository.addRequest(ip, url, date);
+
+    return { ip, url, date: date.toISOString() };
+  }
+
+  @HttpCode(200)
+  @Get('ip-restrictions')
+  async getIpRestrictions() {
+    const records = await this.ipRestrictionsRepository.findAll();
+
+    return records.map((r) => ({
+      id: r.id,
+      ip: r.ip,
+      url: r.url,
+      date: r.date.toISOString(),
+    }));
   }
 
   private verifyRefreshToken(req: any): any {

@@ -11,7 +11,7 @@ import { UsersQueryRepository } from '../../users/repository/users.query-reposit
 import { UsersRepository } from '../../users/repository/users.repository';
 import { EmailService } from '../../adapter/EmailService';
 import { AppSettings } from '../../../settings/appSettings';
-import { RefreshTokenMetaRepository } from '../repository/refresh-token-meta.repository';
+import { RefreshTokenMetaSqlRepository } from '../repository/refresh-token-meta.sql-repository';
 
 @Injectable()
 export class AuthService {
@@ -20,7 +20,7 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
-    private readonly refreshTokenMetaRepository: RefreshTokenMetaRepository,
+    private readonly refreshTokenMetaRepository: RefreshTokenMetaSqlRepository,
   ) {}
 
   async generatePasswordHash(password: string): Promise<string> {
@@ -51,7 +51,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(
       { userId, login: user.login },
-      { expiresIn: '10s' },
+      { expiresIn: AppSettings.ACCESS_JWT_EXPIRES as any },
     );
 
     const refreshToken = this.jwtService.sign(
@@ -307,7 +307,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(
       { userId: payload.userId, login: payload.login },
-      { expiresIn: '10s' },
+      { expiresIn: AppSettings.ACCESS_JWT_EXPIRES as any },
     );
 
     const newRefreshToken = this.jwtService.sign(

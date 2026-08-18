@@ -4,7 +4,8 @@ import { UsersService } from '../../users/service/users.service';
 import { BlogsService } from '../../blogs/service/blogs.service';
 import { PostsService } from '../../posts/service/posts.service';
 import { CommentsService } from '../../comments/service/comments.service';
-import { RefreshTokenMetaRepository } from '../../auth/repository/refresh-token-meta.repository';
+import { RefreshTokenMetaSqlRepository } from '../../auth/repository/refresh-token-meta.sql-repository';
+import { IpRestrictionsSqlRepository } from '../../security/repository/ip-restrictions.sql-repository';
 
 @Controller('testing/all-data')
 export class TestingController {
@@ -13,7 +14,8 @@ export class TestingController {
     private readonly blogsService: BlogsService,
     private readonly postsService: PostsService,
     private readonly commentsService: CommentsService,
-    private readonly refreshTokenMetaRepository: RefreshTokenMetaRepository,
+    private readonly refreshTokenMetaRepository: RefreshTokenMetaSqlRepository,
+    private readonly ipRestrictionsRepository: IpRestrictionsSqlRepository,
   ) {}
 
   @Delete()
@@ -24,5 +26,6 @@ export class TestingController {
     await this.postsService.deleteAll();
     await this.commentsService.deleteAll();
     await this.refreshTokenMetaRepository.deleteAll();
+    await this.ipRestrictionsRepository.deleteAll();
   }
 }

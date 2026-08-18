@@ -1,0 +1,83 @@
+### Add IP restriction
+POST http://localhost:3000/security/ip-restriction
+Content-Type: application/json
+
+###
+
+### Get all IP restrictions
+GET http://localhost:3000/security/ip-restrictions
+
+###
+
+### SA - Create user
+POST http://localhost:3000/sa/users
+Authorization: Basic YWRtaW46cXdlcnR5
+Content-Type: application/json
+
+{
+  "login": "lg-2424",
+  "password": "qwerty1",
+  "email": "emailbefore@gg.com"
+}
+
+###
+
+### SA - Get all users
+GET http://localhost:3000/sa/users
+Authorization: Basic YWRtaW46cXdlcnR5
+
+###
+
+### SA - Delete user by id
+DELETE http://localhost:3000/sa/users/{{userId}}
+Authorization: Basic YWRtaW46cXdlcnR5
+
+###
+
+### Delete all data
+DELETE http://localhost:3000/testing/all-data
+
+###
+
+### Auth - Login
+POST http://localhost:3000/auth/login
+Content-Type: application/json
+
+{
+  "loginOrEmail": "lg-2424",
+  "password": "qwerty1"
+}
+
+###
+
+### Auth - Registration
+POST http://localhost:3000/auth/registration
+Content-Type: application/json
+
+{
+  "login": "lg-2424",
+  "password": "qwerty1",
+  "email": "emailbefore@gg.com"
+}
+
+###
+
+### Auth - Registration confirmation
+POST http://localhost:3000/auth/registration-confirmation
+Content-Type: application/json
+
+{
+  "code": "{{confirmationCode}}"
+}
+
+###
+
+### Auth - Registration email resending
+POST http://localhost:3000/auth/registration-email-resending
+Content-Type: application/json
+
+{
+  "email": "emailbefore@gg.com"
+}
+
+###
