@@ -1,54 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BlogsRepository } from '../../blogs/repository/blogs.repository';
-import { PostsRepository } from '../repository/posts.repository';
+import { BlogsSqlRepository } from '../../blogs/repository/blogs.sql-repository';
+import { PostsSqlRepository } from '../repository/posts.sql-repository';
 import {
   CreateNewPost,
   CreateNewPostForGivenBlogId,
   UpdatePostsData,
 } from '../dto/input/create-new-post.model';
-import { Posts } from '../domain/posts.entity';
-import { Blog } from '../../blogs/domain/blog.entity';
-import { PostLikeRepository } from '../repository/post-like.repository';
-import { LikeStatus } from '../dto/input/like-status.model';
 
 @Injectable()
 export class PostsService {
   constructor(
-    private readonly postsRepository: PostsRepository,
-    private readonly blogsRepository: BlogsRepository,
-    private readonly postLikeRepository: PostLikeRepository,
+    private readonly postsRepository: PostsSqlRepository,
+    private readonly blogsRepository: BlogsSqlRepository,
   ) {}
 
-  async create(data: CreateNewPost): Promise<Posts> {
-    console.log('create new data = ', data);
-
+  async create(data: CreateNewPost) {
     const blog = await this.blogsRepository.getBlogById(data.blogId);
 
     if (!blog) {
-      throw new NotFoundException(`Blog with ID ${data.blogId}  not found`);
+      throw new NotFoundException(`Blog with ID ${data.blogId} not found`);
     }
-    const publishedAt = new Date().toISOString();
 
-    const createBlogDto: {
-      createdAt: string;
-      blogName: string;
-      extendedLikesInfo: {
-        likesCount: number;
-        newestLikes: { addedAt: string; login: string; userId: string }[];
-        dislikesCount: number;
-        myStatus: string;
-      };
-      shortDescription: string;
-      title: string;
-      blogId: string;
-      content: string;
-    } = {
+    const newPost = {
       title: data.title,
       shortDescription: data.shortDescription,
       content: data.content,
       blogId: data.blogId,
-      blogName: 'string',
-      createdAt: publishedAt,
+      blogName: blog.name,
+      createdAt: new Date().toISOString(),
+    };
+
+    const createdPost = await this.postsRepository.save(newPost);
+
+    return {
+      id: createdPost.id,
+      title: createdPost.title,
+      shortDescription: createdPost.shortDescription,
+      content: createdPost.content,
+      blogId: createdPost.blogId,
+      blogName: createdPost.blogName,
+      createdAt: new Date(createdPost.createdAt).toISOString(),
       extendedLikesInfo: {
         likesCount: 0,
         dislikesCount: 0,
@@ -56,9 +47,6 @@ export class PostsService {
         newestLikes: [],
       },
     };
-
-    const createdPostId = await this.postsRepository.save(createBlogDto);
-    return createdPostId;
   }
 
   async remove(id: string) {
@@ -69,38 +57,31 @@ export class PostsService {
     return await this.postsRepository.delete(id);
   }
 
-  async createPostForBlog(
-    blogId: string,
-    newPost: CreateNewPostForGivenBlogId,
-  ) {
-    const blog: Blog | null = await this.blogsRepository.getBlogById(blogId);
-    console.log('blog = ', blog);
+  async createPostForBlog(blogId: string, newPost: CreateNewPostForGivenBlogId) {
+    const blog = await this.blogsRepository.getBlogById(blogId);
     if (!blog) {
       throw new NotFoundException(`Blog with ID ${blogId} not found`);
     }
 
-    const publishedAt = new Date().toISOString();
-
-    const post: {
-      createdAt: string;
-      blogName: string;
-      extendedLikesInfo: {
-        likesCount: number;
-        newestLikes: { addedAt: string; login: string; userId: string }[];
-        dislikesCount: number;
-        myStatus: string;
-      };
-      shortDescription: string;
-      title: string;
-      blogId: string;
-      content: string;
-    } = {
+    const post = {
       title: newPost.title,
       shortDescription: newPost.shortDescription,
       content: newPost.content,
       blogId: blogId,
       blogName: blog.name,
-      createdAt: publishedAt,
+      createdAt: new Date().toISOString(),
+    };
+
+    const createdPost = await this.postsRepository.save(post);
+
+    return {
+      id: createdPost.id,
+      title: createdPost.title,
+      shortDescription: createdPost.shortDescription,
+      content: createdPost.content,
+      blogId: createdPost.blogId,
+      blogName: createdPost.blogName,
+      createdAt: new Date(createdPost.createdAt).toISOString(),
       extendedLikesInfo: {
         likesCount: 0,
         dislikesCount: 0,
@@ -108,49 +89,39 @@ export class PostsService {
         newestLikes: [],
       },
     };
-
-    const createdPost = await this.postsRepository.save(post);
-
-    console.log('createdPost!!!!!!!!!!!! = ', createdPost);
-    return createdPost;
   }
 
-  async findOne(id: string): Promise<Posts | null> {
-    const newVar = await this.postsRepository.findById(id);
-    return newVar;
+  async findOne(id: string) {
+    return await this.postsRepository.findById(id);
   }
 
-  async update(id: string, updateModel: UpdatePostsData): Promise<number> {
+  async update(id: string, updateModel: UpdatePostsData): Promise<boolean> {
     const post = await this.postsRepository.findById(id);
     if (!post) {
       throw new NotFoundException(`Post with ID ${id} not found`);
     }
 
-    post.title = updateModel.title;
-    post.shortDescription = updateModel.shortDescription;
-    post.content = updateModel.content;
-    post.blogId = updateModel.blogId;
-
-    await this.postsRepository.update(id, post);
-    return 100;
+    return await this.postsRepository.update(id, {
+      title: updateModel.title,
+      shortDescription: updateModel.shortDescription,
+      content: updateModel.content,
+      blogId: updateModel.blogId,
+    });
   }
+
   async deleteAll(): Promise<boolean> {
-    await this.postLikeRepository.deleteAll();
-    const result = await this.postsRepository.deleteAll();
-    return result;
+    return await this.postsRepository.deleteAll();
   }
 
   async setLikeStatus(
     postId: string,
     userId: string,
     login: string,
-    status: LikeStatus,
+    status: string,
   ): Promise<void> {
     const post = await this.postsRepository.findById(postId);
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
-
-    await this.postLikeRepository.setLikeStatus(postId, userId, login, status);
   }
 }

@@ -1,15 +1,13 @@
 import { CreateBlogModel } from '../dto/input/create-blog.model';
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { BlogsRepository } from '../repository/blogs.repository';
-import { Blog } from '../domain/blog.entity';
-import { BlogOutputModelMapper } from '../dto/output/blog.output.model';
+import { BlogsSqlRepository } from '../repository/blogs.sql-repository';
 
 @Injectable()
 export class BlogsService {
-  constructor(private readonly blogsRepository: BlogsRepository) {}
+  constructor(private readonly blogsRepository: BlogsSqlRepository) {}
 
-  async create(createModel: CreateBlogModel): Promise<Blog> {
-    const createNewBlog: Blog = {
+  async create(createModel: CreateBlogModel) {
+    const createNewBlog = {
       name: createModel.name,
       description: createModel.description,
       websiteUrl: createModel.websiteUrl,
@@ -18,21 +16,25 @@ export class BlogsService {
     };
     const savedBlog = await this.blogsRepository.save(createNewBlog);
 
-    return BlogOutputModelMapper(savedBlog);
+    return {
+      id: savedBlog.id,
+      name: savedBlog.name,
+      description: savedBlog.description,
+      websiteUrl: savedBlog.websiteUrl,
+      createdAt: new Date(savedBlog.createdAt).toISOString(),
+      isMembership: savedBlog.isMembership,
+    };
   }
 
   async deleteAll(): Promise<boolean> {
-    const result = await this.blogsRepository.deleteAll();
-    console.log(result);
-    return result;
+    return await this.blogsRepository.deleteAll();
   }
 
   async remove(id: string): Promise<boolean> {
-    const b = await this.blogsRepository.delete(id);
-    return b;
+    return await this.blogsRepository.delete(id);
   }
 
-  async findBlogById(id: string): Promise<Blog | null> {
+  async findBlogById(id: string) {
     return await this.blogsRepository.getBlogById(id);
   }
 
@@ -42,11 +44,10 @@ export class BlogsService {
       throw new NotFoundException(`Blog with ID ${id} not found`);
     }
 
-    blog.name = updateModel.name;
-    blog.description = updateModel.description;
-    blog.websiteUrl = updateModel.websiteUrl;
-
-    const updatedBlog = await this.blogsRepository.update(id, blog);
-    return !!updatedBlog;
+    return await this.blogsRepository.update(id, {
+      name: updateModel.name,
+      description: updateModel.description,
+      websiteUrl: updateModel.websiteUrl,
+    });
   }
 }

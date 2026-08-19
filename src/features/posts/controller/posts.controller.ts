@@ -25,11 +25,9 @@ import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/model/pagination.base.model';
-
 import { OutputPostModel } from '../dto/output/posts.output.model';
 import { SortingPropertiesType } from '../../../base/model/sorting-properies.types';
-import { PostsQueryRepository } from '../repository/posts.query-repository';
-import { Posts } from '../domain/posts.entity';
+import { PostsSqlQueryRepository } from '../repository/posts.sql-query-repository';
 import { CommandBus } from '@nestjs/cqrs';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../../auth/guards/optional-jwt-auth.guard';
@@ -49,7 +47,7 @@ export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<OutputPostModel> =
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
-    private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly postsQueryRepository: PostsSqlQueryRepository,
     private readonly commandBus: CommandBus,
     private readonly commentsQueryRepository: CommentsQueryRepository,
   ) {}
@@ -77,10 +75,7 @@ export class PostsController {
         POSTS_SORTING_PROPERTIES,
       );
 
-    const posts: PaginationOutput<OutputPostModel> =
-      await this.postsQueryRepository.getAll(pagination, userId);
-
-    return posts;
+    return await this.postsQueryRepository.getAll(pagination, userId);
   }
 
   @UseGuards(BasicAuthGuard)
@@ -92,6 +87,7 @@ export class PostsController {
       throw new NotFoundException(`Couldn't delete Post with ID ${id}`);
     }
   }
+
   @UseGuards(OptionalJwtAuthGuard)
   @HttpCode(200)
   @Get(':id')

@@ -18,4 +18,5 @@ export const AppSettings = {
   EMAIL_PWS: process.env.EMAIL_PWS,
   MONGO_URI_CLOUD: process.env.MONGO_URI_CLOUD,
   MONGO_URI_LOCAL: process.env.MONGO_URI_CLOUD,
+  POSTGRES_URL: process.env.POSTGRES_URL,
 };

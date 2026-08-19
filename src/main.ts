@@ -14,8 +14,9 @@ async function bootstrap() {
 
   applyAppSettings(app);
 
-  await app.listen(3000, () => {
-    logger.log(`App started listening on port: ${AppSettings.PORT}`);
+  const port = AppSettings.PORT || 3000;
+  await app.listen(port, '0.0.0.0', () => {
+    logger.log(`App started listening on port: ${port}`);
     logger.log(`Connected to database: ${AppSettings.DB_NANE_NEST}`);
   });
 }

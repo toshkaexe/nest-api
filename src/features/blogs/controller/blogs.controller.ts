@@ -24,14 +24,13 @@ import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/model/pagination.base.model';
-import { BlogsQueryRepository } from '../repository/blogs.query-repository';
+import { BlogsSqlQueryRepository } from '../repository/blogs.sql-query-repository';
 import { BlogOutputModel } from '../dto/output/blog.output.model';
 import { SortingPropertiesType } from '../../../base/model/sorting-properies.types';
-import { Types } from 'mongoose';
 import { CreateNewPostForGivenBlogId } from '../../posts/dto/input/create-new-post.model';
 import { PostsService } from '../../posts/service/posts.service';
 import { OutputPostModel } from '../../posts/dto/output/posts.output.model';
-import { PostsQueryRepository } from '../../posts/repository/posts.query-repository';
+import { PostsSqlQueryRepository } from '../../posts/repository/posts.sql-query-repository';
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
   ['name'];
@@ -43,8 +42,8 @@ export class BlogsController {
   constructor(
     private readonly blogsService: BlogsService,
     private readonly postsService: PostsService,
-    private readonly blogsQueryRepository: BlogsQueryRepository,
-    private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly blogsQueryRepository: BlogsSqlQueryRepository,
+    private readonly postsQueryRepository: PostsSqlQueryRepository,
   ) {}
 
   @UseGuards(BasicAuthGuard)
@@ -68,26 +67,28 @@ export class BlogsController {
         BLOGS_SORTING_PROPERTIES,
       );
 
-    const blogs: PaginationOutput<BlogOutputModel> =
-      await this.blogsQueryRepository.getAll(pagination);
-
-    return blogs;
+    return await this.blogsQueryRepository.getAll(pagination);
   }
 
   @Get(':id')
   @HttpCode(200)
   async getBlogByID(@Param('id') id: string) {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new NotFoundException(`Blog with ID ${id} not found`);
-    }
     const blog = await this.blogsService.findBlogById(id);
 
     if (!blog) {
       throw new NotFoundException(`Blog with ID ${id} not found`);
     }
 
-    return blog;
+    return {
+      id: blog.id,
+      name: blog.name,
+      description: blog.description,
+      websiteUrl: blog.websiteUrl,
+      createdAt: new Date(blog.createdAt).toISOString(),
+      isMembership: blog.isMembership,
+    };
   }
+
   @UseGuards(BasicAuthGuard)
   @HttpCode(204)
   @Put(':id')
@@ -96,11 +97,12 @@ export class BlogsController {
     @Body(new ValidationPipe({ transform: true }))
     updateBlogDto: CreateBlogModel,
   ) {
-    const updateResult = await this.blogsService.update(id, updateBlogDto);
-
-    if (!updateResult) {
+    const blog = await this.blogsService.findBlogById(id);
+    if (!blog) {
       throw new NotFoundException(`Couldn't update Blog with ID ${id}`);
     }
+
+    await this.blogsService.update(id, updateBlogDto);
   }
 
   @UseGuards(BasicAuthGuard)
@@ -121,8 +123,6 @@ export class BlogsController {
     @Body(new ValidationPipe({ transform: true }))
     newPost: CreateNewPostForGivenBlogId,
   ) {
-    console.log('----');
-    console.log('createPostForBlog newPost = ', newPost);
     return this.postsService.createPostForBlog(blogId, newPost);
   }
 
@@ -145,12 +145,6 @@ export class BlogsController {
       throw new NotFoundException(`Blog with ID ${blogId} not found`);
     }
 
-    const posts = await this.postsQueryRepository.getPostsForBlog(
-      blogId,
-      pagination,
-      userId,
-    );
-
-    return posts;
+    return await this.postsQueryRepository.getPostsForBlog(blogId, pagination, userId);
   }
 }

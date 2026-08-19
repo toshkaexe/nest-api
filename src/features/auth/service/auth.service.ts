@@ -51,7 +51,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(
       { userId, login: user.login },
-      { expiresIn: '10s' },
+      { expiresIn: '10m' },
     );
 
     const refreshToken = this.jwtService.sign(
@@ -307,7 +307,7 @@ export class AuthService {
 
     const accessToken = this.jwtService.sign(
       { userId: payload.userId, login: payload.login },
-      { expiresIn: '10s' },
+      { expiresIn: '10m' },
     );
 
     const newRefreshToken = this.jwtService.sign(

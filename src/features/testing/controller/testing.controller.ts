@@ -19,9 +19,9 @@ export class TestingController {
   @Delete()
   @HttpCode(204)
   async delete() {
-    await this.usersService.deleteAll();
-    await this.blogsService.deleteAll();
     await this.postsService.deleteAll();
+    await this.blogsService.deleteAll();
+    await this.usersService.deleteAll();
     await this.commentsService.deleteAll();
     await this.refreshTokenMetaRepository.deleteAll();
   }

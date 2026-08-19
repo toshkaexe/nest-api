@@ -2,6 +2,7 @@ import { Module, Provider } from '@nestjs/common';
 
 import { AppService } from './app.service';
 import { UsersController } from './features/users/controller/users.controller';
+import { SaUsersController } from './features/users/controller/sa-users.controller';
 
 import { UsersRepository } from './features/users/repository/users.repository';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -13,20 +14,14 @@ import { AuthService } from './features/auth/service/auth.service';
 import { TestingController } from './features/testing/controller/testing.controller';
 import { WelcomePageController } from './features/testing/controller/welcome-page.controller';
 import { BlogsController } from './features/blogs/controller/blogs.controller';
-import { BlogsRepository } from './features/blogs/repository/blogs.repository';
+import { SaBlogsController } from './features/blogs/controller/sa-blogs.controller';
+import { BlogsSqlRepository } from './features/blogs/repository/blogs.sql-repository';
 import { BlogsService } from './features/blogs/service/blogs.service';
-import { Blog, BlogSchema } from './features/blogs/domain/blog.entity';
-import { BlogsQueryRepository } from './features/blogs/repository/blogs.query-repository';
+import { BlogsSqlQueryRepository } from './features/blogs/repository/blogs.sql-query-repository';
 import { PostsService } from './features/posts/service/posts.service';
 import { PostsController } from './features/posts/controller/posts.controller';
-import { PostsRepository } from './features/posts/repository/posts.repository';
-import { Posts, PostsSchema } from './features/posts/domain/posts.entity';
-import { PostsQueryRepository } from './features/posts/repository/posts.query-repository';
-import {
-  PostLike,
-  PostLikeSchema,
-} from './features/posts/domain/post-like.entity';
-import { PostLikeRepository } from './features/posts/repository/post-like.repository';
+import { PostsSqlRepository } from './features/posts/repository/posts.sql-repository';
+import { PostsSqlQueryRepository } from './features/posts/repository/posts.sql-query-repository';
 import { AuthController } from './features/auth/controller/auth.controller';
 import { EmailService } from './features/adapter/EmailService';
 import { JwtModule } from '@nestjs/jwt';
@@ -42,8 +37,9 @@ import {
   CommentLike,
   CommentLikeSchema,
 } from './features/comments/domain/comment-like.entity';
-import { ThrottlerModule } from '@nestjs/throttler';
 import { CqrsModule } from '@nestjs/cqrs';
+import { PostgresModule } from './database/postgres.module';
+import { PgInitService } from './database/pg-init.service';
 import { SetLikeStatusUseCase } from './features/comments/use-cases/set-like-status.use-case';
 import { CreateCommentUseCase } from './features/comments/use-cases/create-comment.use-case';
 import { UpdateCommentUseCase } from './features/comments/use-cases/update-comment.use-case';
@@ -60,17 +56,17 @@ const usersProviders: Provider[] = [
   UsersService,
   UsersQueryRepository,
 ];
+
 const blogsProviders: Provider[] = [
-  BlogsRepository,
+  BlogsSqlRepository,
   BlogsService,
-  BlogsQueryRepository,
+  BlogsSqlQueryRepository,
 ];
 
 const postsProviders: Provider[] = [
-  PostsRepository,
+  PostsSqlRepository,
   PostsService,
-  PostsQueryRepository,
-  PostLikeRepository,
+  PostsSqlQueryRepository,
 ];
 
 const commentsProviders: Provider[] = [
@@ -89,11 +85,6 @@ const commentsProviders: Provider[] = [
       `${AppSettings.MONGO_URI_CLOUD}/${AppSettings.DB_NANE_NEST}`,
     ),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Blog.name, schema: BlogSchema }]),
-    MongooseModule.forFeature([{ name: Posts.name, schema: PostsSchema }]),
-    MongooseModule.forFeature([
-      { name: PostLike.name, schema: PostLikeSchema },
-    ]),
     MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
     MongooseModule.forFeature([
       { name: CommentLike.name, schema: CommentLikeSchema },
@@ -103,10 +94,10 @@ const commentsProviders: Provider[] = [
     ]),
     JwtModule.register({
       secret: AppSettings.ACCESS_JWT_SECRET,
-      signOptions: { expiresIn: '10s' },
+      signOptions: { expiresIn: '10m' },
     }),
-    ThrottlerModule.forRoot([{ ttl: 10000, limit: 5 }]),
     CqrsModule.forRoot(),
+    PostgresModule,
   ],
   providers: [
     AppService,
@@ -117,12 +108,15 @@ const commentsProviders: Provider[] = [
     AuthService,
     EmailService,
     RefreshTokenMetaRepository,
+    PgInitService,
   ],
   controllers: [
     UsersController,
+    SaUsersController,
     TestingController,
     WelcomePageController,
     BlogsController,
+    SaBlogsController,
     PostsController,
     AuthController,
     CommentsController,
