@@ -22,21 +22,14 @@ import { PostsService } from './features/posts/service/posts.service';
 import { PostsController } from './features/posts/controller/posts.controller';
 import { PostsSqlRepository } from './features/posts/repository/posts.sql-repository';
 import { PostsSqlQueryRepository } from './features/posts/repository/posts.sql-query-repository';
+import { PostLikesSqlRepository } from './features/posts/repository/post-likes.sql-repository';
 import { AuthController } from './features/auth/controller/auth.controller';
 import { EmailService } from './features/adapter/EmailService';
 import { JwtModule } from '@nestjs/jwt';
 import { CommentsController } from './features/comments/controller/comments.controller';
 import { CommentsService } from './features/comments/service/comments.service';
-import { CommentsRepository } from './features/comments/repository/comments.repository';
-import { CommentsQueryRepository } from './features/comments/repository/comments.query-repository';
-import {
-  Comment,
-  CommentSchema,
-} from './features/comments/domain/comment.entity';
-import {
-  CommentLike,
-  CommentLikeSchema,
-} from './features/comments/domain/comment-like.entity';
+import { CommentsSqlRepository } from './features/comments/repository/comments.sql-repository';
+import { CommentsSqlQueryRepository } from './features/comments/repository/comments.sql-query-repository';
 import { CqrsModule } from '@nestjs/cqrs';
 import { PostgresModule } from './database/postgres.module';
 import { PgInitService } from './database/pg-init.service';
@@ -67,12 +60,13 @@ const postsProviders: Provider[] = [
   PostsSqlRepository,
   PostsService,
   PostsSqlQueryRepository,
+  PostLikesSqlRepository,
 ];
 
 const commentsProviders: Provider[] = [
-  CommentsRepository,
+  CommentsSqlRepository,
   CommentsService,
-  CommentsQueryRepository,
+  CommentsSqlQueryRepository,
   SetLikeStatusUseCase,
   CreateCommentUseCase,
   UpdateCommentUseCase,
@@ -85,10 +79,6 @@ const commentsProviders: Provider[] = [
       `${AppSettings.MONGO_URI_CLOUD}/${AppSettings.DB_NANE_NEST}`,
     ),
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([{ name: Comment.name, schema: CommentSchema }]),
-    MongooseModule.forFeature([
-      { name: CommentLike.name, schema: CommentLikeSchema },
-    ]),
     MongooseModule.forFeature([
       { name: RefreshTokenMeta.name, schema: RefreshTokenMetaSchema },
     ]),

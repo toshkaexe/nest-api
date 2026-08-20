@@ -12,7 +12,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
-import { CommentsQueryRepository } from '../repository/comments.query-repository';
+import { CommentsSqlQueryRepository } from '../repository/comments.sql-query-repository';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 import { OptionalJwtAuthGuard } from '../../auth/guards/optional-jwt-auth.guard';
 import { LikeStatusModel } from '../dto/input/like-status.model';
@@ -25,7 +25,7 @@ import { SetLikeStatusCommand } from '../use-cases/set-like-status.use-case';
 export class CommentsController {
   constructor(
     private readonly commandBus: CommandBus,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commentsQueryRepository: CommentsSqlQueryRepository,
   ) {}
 
   @UseGuards(OptionalJwtAuthGuard)

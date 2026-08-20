@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CommentsRepository } from '../repository/comments.repository';
+import { CommentsSqlRepository } from '../repository/comments.sql-repository';
 
 export class CreateCommentCommand {
   constructor(
@@ -14,20 +14,15 @@ export class CreateCommentCommand {
 export class CreateCommentUseCase
   implements ICommandHandler<CreateCommentCommand>
 {
-  constructor(private readonly commentsRepository: CommentsRepository) {}
+  constructor(private readonly commentsRepository: CommentsSqlRepository) {}
 
   async execute(command: CreateCommentCommand): Promise<string> {
-    const newComment = {
+    return this.commentsRepository.create({
       postId: command.postId,
       content: command.content,
-      commentatorInfo: {
-        userId: command.userId,
-        userLogin: command.userLogin,
-      },
-      likesInfo: { likesCount: 0, dislikesCount: 0 },
-      createdAt: new Date(),
-    };
-
-    return this.commentsRepository.create(newComment);
+      userId: command.userId,
+      userLogin: command.userLogin,
+      createdAt: new Date().toISOString(),
+    });
   }
 }

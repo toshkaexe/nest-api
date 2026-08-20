@@ -34,12 +34,12 @@ import { OptionalJwtAuthGuard } from '../../auth/guards/optional-jwt-auth.guard'
 import { BasicAuthGuard } from '../../auth/guards/basic-auth.guard';
 import { CreateCommentModel } from '../../comments/dto/input/create-comment.model';
 import { CreateCommentCommand } from '../../comments/use-cases/create-comment.use-case';
-import { CommentsQueryRepository } from '../../comments/repository/comments.query-repository';
+import { CommentsSqlQueryRepository } from '../../comments/repository/comments.sql-query-repository';
 import { CommentOutputModel } from '../../comments/dto/output/comment.output.model';
 import { LikeStatusModel } from '../dto/input/like-status.model';
 
 export const POSTS_SORTING_PROPERTIES: SortingPropertiesType<OutputPostModel> =
-  ['title'];
+  ['title', 'blogName', 'content', 'shortDescription', 'createdAt'];
 
 @ApiTags('Posts')
 @Controller('posts')
@@ -49,7 +49,7 @@ export class PostsController {
     private readonly postsService: PostsService,
     private readonly postsQueryRepository: PostsSqlQueryRepository,
     private readonly commandBus: CommandBus,
-    private readonly commentsQueryRepository: CommentsQueryRepository,
+    private readonly commentsQueryRepository: CommentsSqlQueryRepository,
   ) {}
 
   @UseGuards(BasicAuthGuard)

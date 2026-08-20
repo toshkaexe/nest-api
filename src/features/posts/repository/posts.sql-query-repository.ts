@@ -43,7 +43,9 @@ export class PostsSqlQueryRepository {
       [...params, limit, offset],
     );
 
-    const items: OutputPostModel[] = itemsResult.rows.map((row) => this.mapToOutput(row));
+    const items: OutputPostModel[] = await Promise.all(
+      itemsResult.rows.map((row) => this.mapToOutput(row, userId)),
+    );
 
     return new PaginationOutput(items, pagination.pageNumber, pagination.pageSize, totalCount);
   }
@@ -73,7 +75,9 @@ export class PostsSqlQueryRepository {
       [blogId, limit, offset],
     );
 
-    const items: OutputPostModel[] = itemsResult.rows.map((row) => this.mapToOutput(row));
+    const items: OutputPostModel[] = await Promise.all(
+      itemsResult.rows.map((row) => this.mapToOutput(row, userId)),
+    );
 
     return new PaginationOutput(items, pagination.pageNumber, pagination.pageSize, totalCount);
   }
@@ -87,13 +91,39 @@ export class PostsSqlQueryRepository {
       );
 
       if (result.rows.length === 0) return null;
-      return this.mapToOutput(result.rows[0]);
+      return this.mapToOutput(result.rows[0], userId);
     } catch {
       return null;
     }
   }
 
-  private mapToOutput(row: any): OutputPostModel {
+  private async mapToOutput(row: any, userId: string | null = null): Promise<OutputPostModel> {
+    const likesCountResult = await this.pool.query(
+      `SELECT COUNT(*) FROM post_likes WHERE post_id = $1 AND status = 'Like'`,
+      [row.id],
+    );
+    const dislikesCountResult = await this.pool.query(
+      `SELECT COUNT(*) FROM post_likes WHERE post_id = $1 AND status = 'Dislike'`,
+      [row.id],
+    );
+
+    let myStatus = 'None';
+    if (userId) {
+      const myStatusResult = await this.pool.query(
+        `SELECT status FROM post_likes WHERE post_id = $1 AND user_id = $2`,
+        [row.id, userId],
+      );
+      myStatus = myStatusResult.rows[0]?.status || 'None';
+    }
+
+    const newestLikesResult = await this.pool.query(
+      `SELECT user_id as "userId", login, added_at as "addedAt"
+       FROM post_likes WHERE post_id = $1 AND status = 'Like'
+       ORDER BY added_at DESC
+       LIMIT 3`,
+      [row.id],
+    );
+
     return {
       id: row.id,
       title: row.title,
@@ -103,10 +133,14 @@ export class PostsSqlQueryRepository {
       blogName: row.blogName,
       createdAt: new Date(row.createdAt).toISOString(),
       extendedLikesInfo: {
-        likesCount: 0,
-        dislikesCount: 0,
-        myStatus: 'None',
-        newestLikes: [],
+        likesCount: parseInt(likesCountResult.rows[0].count),
+        dislikesCount: parseInt(dislikesCountResult.rows[0].count),
+        myStatus,
+        newestLikes: newestLikesResult.rows.map((like) => ({
+          addedAt: new Date(like.addedAt).toISOString(),
+          userId: like.userId,
+          login: like.login,
+        })),
       },
     };
   }

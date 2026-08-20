@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ForbiddenException, NotFoundException } from '@nestjs/common';
-import { CommentsRepository } from '../repository/comments.repository';
+import { CommentsSqlRepository } from '../repository/comments.sql-repository';
 
 export class UpdateCommentCommand {
   constructor(
@@ -14,14 +14,14 @@ export class UpdateCommentCommand {
 export class UpdateCommentUseCase
   implements ICommandHandler<UpdateCommentCommand>
 {
-  constructor(private readonly commentsRepository: CommentsRepository) {}
+  constructor(private readonly commentsRepository: CommentsSqlRepository) {}
 
   async execute(command: UpdateCommentCommand): Promise<void> {
     const comment = await this.commentsRepository.findById(command.commentId);
     if (!comment) {
       throw new NotFoundException('Comment not found');
     }
-    if (comment.commentatorInfo.userId !== command.userId) {
+    if (comment.userId !== command.userId) {
       throw new ForbiddenException();
     }
     await this.commentsRepository.updateContent(

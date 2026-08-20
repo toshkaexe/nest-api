@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NotFoundException } from '@nestjs/common';
-import { CommentsRepository } from '../repository/comments.repository';
+import { CommentsSqlRepository } from '../repository/comments.sql-repository';
 
 export class SetLikeStatusCommand {
   constructor(
@@ -14,7 +14,7 @@ export class SetLikeStatusCommand {
 export class SetLikeStatusUseCase
   implements ICommandHandler<SetLikeStatusCommand>
 {
-  constructor(private readonly commentsRepository: CommentsRepository) {}
+  constructor(private readonly commentsRepository: CommentsSqlRepository) {}
 
   async execute(command: SetLikeStatusCommand): Promise<void> {
     const comment = await this.commentsRepository.findById(command.commentId);

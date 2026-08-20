@@ -31,9 +31,10 @@ import { CreateNewPostForGivenBlogId } from '../../posts/dto/input/create-new-po
 import { PostsService } from '../../posts/service/posts.service';
 import { OutputPostModel } from '../../posts/dto/output/posts.output.model';
 import { PostsSqlQueryRepository } from '../../posts/repository/posts.sql-query-repository';
+import { POSTS_SORTING_PROPERTIES } from '../../posts/controller/posts.controller';
 
 export const BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
-  ['name'];
+  ['name', 'description', 'websiteUrl', 'createdAt'];
 
 @ApiTags('Blogs')
 @Controller('blogs')
@@ -137,7 +138,7 @@ export class BlogsController {
     const userId = req.user?.userId || null;
     const pagination = new PaginationWithSearchLoginAndEmailTerm(
       query,
-      BLOGS_SORTING_PROPERTIES,
+      POSTS_SORTING_PROPERTIES,
     );
 
     const blog = await this.blogsService.findBlogById(blogId);

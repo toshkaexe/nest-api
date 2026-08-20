@@ -5,10 +5,7 @@ import {
   CommentLike,
   CommentLikeModelType,
 } from '../domain/comment-like.entity';
-import {
-  CommentOutputModel,
-  commentMapper,
-} from '../dto/output/comment.output.model';
+import { CommentOutputModel } from '../dto/output/comment.output.model';
 import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
@@ -33,7 +30,20 @@ export class CommentsQueryRepository {
       ? await this.getUserLikeStatus(id, userId)
       : 'None';
 
-    return commentMapper(comment, userId, myStatus);
+    return {
+      id: comment._id.toString(),
+      content: comment.content,
+      commentatorInfo: {
+        userId: comment.commentatorInfo.userId,
+        userLogin: comment.commentatorInfo.userLogin,
+      },
+      createdAt: comment.createdAt.toISOString(),
+      likesInfo: {
+        likesCount: comment.likesInfo.likesCount,
+        dislikesCount: comment.likesInfo.dislikesCount,
+        myStatus: myStatus || 'None',
+      },
+    };
   }
 
   async getCommentsForPost(
@@ -58,7 +68,20 @@ export class CommentsQueryRepository {
         const myStatus = userId
           ? await this.getUserLikeStatus(comment._id.toString(), userId)
           : 'None';
-        return commentMapper(comment, userId, myStatus);
+        return {
+          id: comment._id.toString(),
+          content: comment.content,
+          commentatorInfo: {
+            userId: comment.commentatorInfo.userId,
+            userLogin: comment.commentatorInfo.userLogin,
+          },
+          createdAt: comment.createdAt.toISOString(),
+          likesInfo: {
+            likesCount: comment.likesInfo.likesCount,
+            dislikesCount: comment.likesInfo.dislikesCount,
+            myStatus: myStatus || 'None',
+          },
+        };
       }),
     );
 

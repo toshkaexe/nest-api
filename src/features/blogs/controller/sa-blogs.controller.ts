@@ -27,9 +27,10 @@ import { CreateNewPostForGivenBlogId } from '../../posts/dto/input/create-new-po
 import { PostsService } from '../../posts/service/posts.service';
 import { OutputPostModel } from '../../posts/dto/output/posts.output.model';
 import { PostsSqlQueryRepository } from '../../posts/repository/posts.sql-query-repository';
+import { POSTS_SORTING_PROPERTIES } from '../../posts/controller/posts.controller';
 
 export const SA_BLOGS_SORTING_PROPERTIES: SortingPropertiesType<BlogOutputModel> =
-  ['name'];
+  ['name', 'description', 'websiteUrl', 'createdAt'];
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -52,7 +53,9 @@ export class SaBlogsController {
 
   @HttpCode(200)
   @Get()
-  async findAll(@Query() query: any): Promise<PaginationOutput<BlogOutputModel>> {
+  async findAll(
+    @Query() query: any,
+  ): Promise<PaginationOutput<BlogOutputModel>> {
     const pagination = new PaginationWithSearchLoginAndEmailTerm(
       query,
       SA_BLOGS_SORTING_PROPERTIES,
@@ -102,7 +105,7 @@ export class SaBlogsController {
   ): Promise<PaginationOutput<OutputPostModel>> {
     const pagination = new PaginationWithSearchLoginAndEmailTerm(
       query,
-      SA_BLOGS_SORTING_PROPERTIES,
+      POSTS_SORTING_PROPERTIES,
     );
 
     const blog = await this.blogsService.findBlogById(blogId);
@@ -110,7 +113,11 @@ export class SaBlogsController {
       throw new NotFoundException(`Blog with ID ${blogId} not found`);
     }
 
-    return await this.postsQueryRepository.getPostsForBlog(blogId, pagination, null);
+    return await this.postsQueryRepository.getPostsForBlog(
+      blogId,
+      pagination,
+      null,
+    );
   }
 
   @HttpCode(204)

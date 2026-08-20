@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { BlogsSqlRepository } from '../../blogs/repository/blogs.sql-repository';
 import { PostsSqlRepository } from '../repository/posts.sql-repository';
+import { PostLikesSqlRepository } from '../repository/post-likes.sql-repository';
 import {
   CreateNewPost,
   CreateNewPostForGivenBlogId,
@@ -12,6 +13,7 @@ export class PostsService {
   constructor(
     private readonly postsRepository: PostsSqlRepository,
     private readonly blogsRepository: BlogsSqlRepository,
+    private readonly postLikesRepository: PostLikesSqlRepository,
   ) {}
 
   async create(data: CreateNewPost) {
@@ -123,5 +125,10 @@ export class PostsService {
     if (!post) {
       throw new NotFoundException(`Post with ID ${postId} not found`);
     }
+    await this.postLikesRepository.setLikeStatus(postId, userId, login, status);
+  }
+
+  async deleteAllLikes(): Promise<void> {
+    await this.postLikesRepository.deleteAll();
   }
 }
