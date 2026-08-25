@@ -142,6 +142,20 @@ npm run test:e2e
 | GET | /posts/:id | Get post by ID |
 | PUT | /posts/:id | Update post |
 | DELETE | /posts/:id | Delete post |
+| POST | /posts/:postId/comments | Create comment for post |
+| GET | /posts/:postId/comments | Get comments for post |
+| PUT | /posts/:postId/like-status | Set like/dislike for post |
+
+### Комментарии (Comments) — CRUD + лайки (raw SQL)
+
+| Операция | Эндпоинт | Описание |
+|----------|----------|----------|
+| Создание | `POST /posts/:postId/comments` | Создать комментарий к посту (JWT авторизация) |
+| Получение (один) | `GET /comments/:id` | Получить комментарий по ID (с учётом лайк-статуса текущего пользователя) |
+| Получение (список) | `GET /posts/:postId/comments` | Получить комментарии к посту с пагинацией |
+| Обновление | `PUT /comments/:commentId` | Обновить контент комментария (только владелец) |
+| Удаление | `DELETE /comments/:commentId` | Удалить комментарий (только владелец) |
+| Лайк | `PUT /comments/:commentId/like-status` | Поставить Like/Dislike/None для комментария |
 
 ### Testing
 | Method | Endpoint | Description |

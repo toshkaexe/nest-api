@@ -23,9 +23,8 @@ import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/model/pagination.base.model';
-import { UsersQueryRepository } from '../repository/users.query-repository';
+import { UsersSqlQueryRepository } from '../repository/users.sql-query-repository';
 import { LoggingInterceptor } from '../../../common/interceptors/logging.interceptor';
-import { Types } from 'mongoose';
 
 export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -37,7 +36,7 @@ export const USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly usersQueryRepository: UsersSqlQueryRepository,
   ) {}
 
   @UseGuards(BasicAuthGuard)
@@ -101,9 +100,6 @@ export class UsersController {
   @HttpCode(204)
   @Delete(':id')
   async delete(@Param('id') id: string) {
-    if (!Types.ObjectId.isValid(id)) {
-      throw new NotFoundException(`User with id ${id} not found`);
-    }
     const deletingResult: boolean = await this.usersService.removeById(id);
 
     if (!deletingResult) {

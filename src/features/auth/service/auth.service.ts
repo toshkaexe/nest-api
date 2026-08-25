@@ -7,20 +7,20 @@ import {
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
-import { UsersQueryRepository } from '../../users/repository/users.query-repository';
-import { UsersRepository } from '../../users/repository/users.repository';
+import { UsersSqlQueryRepository } from '../../users/repository/users.sql-query-repository';
+import { UsersSqlRepository } from '../../users/repository/users.sql-repository';
 import { EmailService } from '../../adapter/EmailService';
 import { AppSettings } from '../../../settings/appSettings';
-import { RefreshTokenMetaRepository } from '../repository/refresh-token-meta.repository';
+import { RefreshTokenMetaSqlRepository } from '../repository/refresh-token-meta.sql-repository';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly usersQueryRepository: UsersQueryRepository,
-    private readonly usersRepository: UsersRepository,
+    private readonly usersQueryRepository: UsersSqlQueryRepository,
+    private readonly usersRepository: UsersSqlRepository,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
-    private readonly refreshTokenMetaRepository: RefreshTokenMetaRepository,
+    private readonly refreshTokenMetaRepository: RefreshTokenMetaSqlRepository,
   ) {}
 
   async generatePasswordHash(password: string): Promise<string> {

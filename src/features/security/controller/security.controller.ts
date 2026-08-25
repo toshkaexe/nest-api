@@ -11,13 +11,13 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { AppSettings } from '../../../settings/appSettings';
-import { RefreshTokenMetaRepository } from '../../auth/repository/refresh-token-meta.repository';
+import { RefreshTokenMetaSqlRepository } from '../../auth/repository/refresh-token-meta.sql-repository';
 
 @Controller('security')
 export class SecurityController {
   constructor(
     private readonly jwtService: JwtService,
-    private readonly refreshTokenMetaRepository: RefreshTokenMetaRepository,
+    private readonly refreshTokenMetaRepository: RefreshTokenMetaSqlRepository,
   ) {}
 
   @HttpCode(200)

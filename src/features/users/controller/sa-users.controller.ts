@@ -20,7 +20,7 @@ import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
 } from '../../../base/model/pagination.base.model';
-import { UsersQueryRepository } from '../repository/users.query-repository';
+import { UsersSqlQueryRepository } from '../repository/users.sql-query-repository';
 
 export const SA_USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel> =
   ['login', 'email'];
@@ -30,7 +30,7 @@ export const SA_USERS_SORTING_PROPERTIES: SortingPropertiesType<UserOutputModel>
 export class SaUsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly usersQueryRepository: UsersQueryRepository,
+    private readonly usersQueryRepository: UsersSqlQueryRepository,
   ) {}
 
   @HttpCode(200)

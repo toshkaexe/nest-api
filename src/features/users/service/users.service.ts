@@ -1,12 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { AuthService } from '../../auth/service/auth.service';
-import { UsersRepository } from '../repository/users.repository';
+import { UsersSqlRepository } from '../repository/users.sql-repository';
 
-// Для провайдера всегда необходимо применять декоратор @Injectable() и регистрировать в модуле
 @Injectable()
 export class UsersService {
   constructor(
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepository: UsersSqlRepository,
     private readonly authService: AuthService,
   ) {}
 

@@ -4,12 +4,10 @@ import { AppService } from './app.service';
 import { UsersController } from './features/users/controller/users.controller';
 import { SaUsersController } from './features/users/controller/sa-users.controller';
 
-import { UsersRepository } from './features/users/repository/users.repository';
-import { MongooseModule } from '@nestjs/mongoose';
+import { UsersSqlRepository } from './features/users/repository/users.sql-repository';
+import { UsersSqlQueryRepository } from './features/users/repository/users.sql-query-repository';
 import { AppSettings } from './settings/appSettings';
 import { UsersService } from './features/users/service/users.service';
-import { UsersQueryRepository } from './features/users/repository/users.query-repository';
-import { User, UserSchema } from './features/users/domain/user.entity';
 import { AuthService } from './features/auth/service/auth.service';
 import { TestingController } from './features/testing/controller/testing.controller';
 import { WelcomePageController } from './features/testing/controller/welcome-page.controller';
@@ -37,17 +35,13 @@ import { SetLikeStatusUseCase } from './features/comments/use-cases/set-like-sta
 import { CreateCommentUseCase } from './features/comments/use-cases/create-comment.use-case';
 import { UpdateCommentUseCase } from './features/comments/use-cases/update-comment.use-case';
 import { DeleteCommentUseCase } from './features/comments/use-cases/delete-comment.use-case';
-import {
-  RefreshTokenMeta,
-  RefreshTokenMetaSchema,
-} from './features/auth/domain/refresh-token-meta.entity';
-import { RefreshTokenMetaRepository } from './features/auth/repository/refresh-token-meta.repository';
+import { RefreshTokenMetaSqlRepository } from './features/auth/repository/refresh-token-meta.sql-repository';
 import { SecurityController } from './features/security/controller/security.controller';
 
 const usersProviders: Provider[] = [
-  UsersRepository,
+  UsersSqlRepository,
   UsersService,
-  UsersQueryRepository,
+  UsersSqlQueryRepository,
 ];
 
 const blogsProviders: Provider[] = [
@@ -75,13 +69,6 @@ const commentsProviders: Provider[] = [
 
 @Module({
   imports: [
-    MongooseModule.forRoot(
-      `${AppSettings.MONGO_URI_CLOUD}/${AppSettings.DB_NANE_NEST}`,
-    ),
-    MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
-    MongooseModule.forFeature([
-      { name: RefreshTokenMeta.name, schema: RefreshTokenMetaSchema },
-    ]),
     JwtModule.register({
       secret: AppSettings.ACCESS_JWT_SECRET,
       signOptions: { expiresIn: '10m' },
@@ -97,7 +84,7 @@ const commentsProviders: Provider[] = [
     ...commentsProviders,
     AuthService,
     EmailService,
-    RefreshTokenMetaRepository,
+    RefreshTokenMetaSqlRepository,
     PgInitService,
   ],
   controllers: [

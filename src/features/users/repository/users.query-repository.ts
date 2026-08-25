@@ -1,9 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { User, UserModelType } from '../domain/user.entity';
-import {
-  UserOutputModel,
-  UserOutputModelMapper,
-} from '../dto/output/user-output.model';
+import { UserOutputModel } from '../dto/output/user-output.model';
 import {
   PaginationOutput,
   PaginationWithSearchLoginAndEmailTerm,
@@ -22,7 +19,12 @@ export class UsersQueryRepository {
       return null;
     }
 
-    return UserOutputModelMapper(user);
+    const output = new UserOutputModel();
+    output.id = user.id;
+    output.login = user.login;
+    output.email = user.email;
+    output.createdAt = user.createdAt.toISOString();
+    return output;
   }
 
   async findByLoginOrEmail(loginOrEmail: string): Promise<any | null> {
@@ -79,7 +81,14 @@ export class UsersQueryRepository {
 
     const totalCount = await this.userModel.countDocuments(filter);
 
-    const mappedPosts = users.map(UserOutputModelMapper);
+    const mappedPosts: UserOutputModel[] = users.map((user) => {
+      const output = new UserOutputModel();
+      output.id = user.id;
+      output.login = user.login;
+      output.email = user.email;
+      output.createdAt = user.createdAt.toISOString();
+      return output;
+    });
 
     return new PaginationOutput<UserOutputModel>(
       mappedPosts,

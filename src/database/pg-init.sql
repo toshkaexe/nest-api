@@ -1,3 +1,27 @@
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    login VARCHAR(10) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    confirmation_code VARCHAR(255) DEFAULT NULL,
+    confirmation_code_expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL,
+    is_confirmed BOOLEAN NOT NULL DEFAULT false,
+    recovery_code VARCHAR(255) DEFAULT NULL,
+    recovery_code_expires_at TIMESTAMP WITH TIME ZONE DEFAULT NULL
+);
+
+CREATE TABLE IF NOT EXISTS refresh_token_meta (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    device_id VARCHAR(255) NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    ip VARCHAR(255) NOT NULL,
+    title VARCHAR(255) NOT NULL,
+    issued_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    expires_at TIMESTAMP WITH TIME ZONE NOT NULL,
+    last_active_date TIMESTAMP WITH TIME ZONE NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS blogs (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(15) NOT NULL,
